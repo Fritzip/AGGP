@@ -1,7 +1,7 @@
 AGGP
 ====
 
-## Générateur de graphes biologiquement plausibles par algorithme génétique.
+#### Générateur de graphes biologiquement plausibles par algorithme génétique.
 
 * Compte github à créer
 
@@ -52,8 +52,7 @@ cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on
 >$ git status
 
 
-Un peu plus d'aide là, si vous voulez :
+Un peu [plus d'aide là](http://doc.ubuntu-fr.org), si vous voulez :
 
-http://doc.ubuntu-fr.org
 
-#### Merci à Antoine pour ce README.
+*Merci à Antoine pour ce README.*
