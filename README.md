@@ -9,6 +9,7 @@ Dans user settings, ssh keys : coller sa clef rsa, obtenue avec :
 Si plusieurs ordis, plusieurs clefs à mettre ;)
 
 >ssh-keygen -t rsa -C "votremailidentifiant"
+
 >cat ~/.ssh/id_rsa.pub
 
 Me donner votre identifiant pour que je vous ajoute au projet. 
