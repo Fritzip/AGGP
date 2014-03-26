@@ -10,6 +10,16 @@ import math
 from scipy import stats as stats
 
 ####################################################################
+#			Global Parameters
+####################################################################
+NB_NODES = 50
+NB_INDIV = 20
+G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+C_RAND = nx.average_clustering(G_RAND)
+L_RAND = nx.average_shortest_path_length(G_RAND)
+NAMES = open("names.txt").read().splitlines()
+
+####################################################################
 #			Global Functions
 ####################################################################
 def symetrize(a):
@@ -37,13 +47,13 @@ class Gaia():
     """ Run the genetic algorithm and select the individuals """
     def __init__(self):
         pass
-
+    
 ####################################################################
 #			Population
 ####################################################################
 class Population():
     """ Population including all the individuals """
-    def __init__(self,size_pop=20,size_indiv=25):
+    def __init__(self,size_pop=NB_INDIV,size_indiv=NB_NODES):
         self.indiv = []
         self.score = []
         
@@ -65,9 +75,9 @@ class Population():
         self.nb_best = int(self.size_pop*0.2)+1
 
         for i in range(self.size_pop):
-            self.indiv.append(Individual(nb_nodes=self.size_indiv,id=str(i)))
+            self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
-
+            
     def genetic_algo(self):
         """ Inspired by
         http://fr.wikipedia.org/wiki/Algorithme_g%C3%A9n%C3%A9tique#Sch.C3.A9ma_r.C3.A9capitulatif
@@ -75,9 +85,9 @@ class Population():
         
         while True:
             print "\n génération = ",self.generation
-            for indi in self.indiv : 
-                indi.graphizer(self.generation)
-                print indi.id,"\n",indi.graph_to_adj_mat()
+            if self.generation%10==0:
+                for indi in self.indiv : 
+                    indi.graphizer(self.generation)
             self.evaluation()
             self.selection()
             self.crossormut()
@@ -89,8 +99,12 @@ class Population():
     def evaluation(self):
         """ Compute the score using fitness function """
         for i in range(len(self.indiv)):
-            self.score[i] = self.indiv[i].calc_score()
-            print "score =",self.score		
+            try:
+                self.score[i] = self.indiv[i].calc_score()
+            except nx.NetworkXError:
+                self.score[i] = 100
+            print "%.2f\t%s"%(self.score[i],self.indiv[i].id) #"\n",indi.graph_to_adj_mat()
+            print "\n==================================="
             
     def roulette_wheel_selec(self):
         """ Roulette wheel selection """
@@ -104,9 +118,7 @@ class Population():
     def elitist_selec(self):
         """ Elitist (20%) and tournament selection (80%) """
         self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.score,self.indiv)))))
-        print "best last",self.best_last_gen_score,map(lambda x: x.id ,self.best_last_gen_indiv)
         self.best_ever_score, self.best_ever_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv)))))
-        print "best ever",self.best_ever_score,map(lambda x: x.id ,self.best_ever_indiv)
         self.selected_indiv += self.best_ever_indiv
         self.selected_score += self.best_ever_score
         while len(self.selected_indiv) != self.size_pop:
@@ -114,8 +126,27 @@ class Population():
             indice = self.tournament(a,b)
             self.selected_indiv.append(self.indiv[indice])
             self.selected_score.append(self.score[indice])
-        print "selected",self.selected_score,map(lambda x: x.id ,self.selected_indiv)
 
+        ### Print, just print
+        ever = map(lambda x: x.id ,self.best_ever_indiv)
+        last = map(lambda x: x.id ,self.best_last_gen_indiv)
+        select = map(lambda x: x.id ,self.selected_indiv)
+        
+        print """\n####################################################
+BEST EVER \t\t BEST LAST GENERATION
+####################################################"""
+        for i in range(len(self.best_ever_score)):
+            print "%.2f\t%s\t | \t%.2f\t%s"%(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
+            
+        print """\n##########################
+        SELECTED
+##########################"""
+        for i in range(len(self.selected_indiv)):
+            print "%.2f\t%s"%(self.selected_score[i],select[i])
+        #print "best last",self.best_last_gen_score,map(lambda x: x.id ,self.best_last_gen_indiv)
+        #print "best ever",self.best_ever_score,map(lambda x: x.id ,self.best_ever_indiv)
+        #print "selected",self.selected_score,map(lambda x: x.id ,self.selected_indiv)
+        
     def tournament(self,a,b):
         if self.score[a]>=self.score[b]:
             higher = a
@@ -131,7 +162,7 @@ class Population():
         """ Choose type of selection """
 		#self.roulette_wheel_selec()
         self.elitist_selec()
-            
+        
     def crossormut(self):
         while len(self.selected_indiv) != 0:
             rand = rd.random()
@@ -150,7 +181,7 @@ class Population():
                 self.next_gen.append(sample)
                     
     def trans_indiv(self,x):
-		#self.next_gen.append(x)
+        #self.next_gen.append(x)
         self.selected_indiv.remove(x)
         
     def cross(self,(ind1,ind2)):
@@ -160,23 +191,23 @@ class Population():
         B = ind2.graph_to_adj_mat()
         #X = symetrize(np.random.binomial(1, 0.2, self.size_indiv**2).reshape(self.size_indiv,self.size_indiv))
         X = np.array(nx.adjacency_matrix(nx.fast_gnp_random_graph(self.size_indiv,0.2))).astype(int)
-        self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=ind1.id))
-        self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=ind2.id))
-            
+        self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=rd.choice(NAMES)))
+        self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=rd.choice(NAMES)))
+        
     def mutation(self,ind):
         #print "mutation"
         """ 30% of variability """
-        self.next_gen.append(Individual(mat = ind.apply_mutations(), id=ind.id))
-
+        self.next_gen.append(Individual(mat = ind.apply_mutations(), id=rd.choice(NAMES)))
+        
 ####################################################################
 #			Individual
 ####################################################################
 class Individual():
     """ Metabolic graph """
-    def __init__(self,mat=0, nb_nodes=25,id=0):
-		#self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
+    def __init__(self,mat=0, nb_nodes=NB_NODES,id=rd.choice(NAMES)):
+        #self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
         self.id = id
-        self.generation = 0
+        #self.generation = 0
         self.score = 0
         #self.graph = self.adj_mat_to_graph(mat) if isinstance(mat,np.ndarray) else nx.fast_gnp_random_graph(nb_nodes,0.2)# random graph
         try:
@@ -198,50 +229,56 @@ class Individual():
         nx.draw(self.graph)
         b=plt.savefig("img/gen"+str(gen)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-		#plt.show() # display
-		
+        #plt.show() # display
+        
     def apply_mutations(self):
         return self.graph_to_adj_mat()
     
     def calc_score(self):
         """ power degree law """
         dict=self.graph.degree() #dictionnaire des degrés : clé = id noeuds ; valeur = degré
-		#print dict
+        #print dict
         values = sorted((dict.values()))
-		#print values
+	#print values
         list_degrees=[]
-        print ("\n" + str(self.id))
+        print "\n## %s ##"%self.id
         for x in values :
             if x not in list_degrees and x != 0 :
                 list_degrees.append(x)
-				
+                
         list_count = [values.count(x) for x in list_degrees]
-		
+        
         print "liste des degrés :"
         print list_degrees
         print "list des count  : "
         print list_count
-
+        
         list_degrees_log=[math.log10(x) for x in list_degrees]
         list_count_log=[math.log10(x) for x in list_count]
-		#print "liste des degrés en log :"
-		#print list_degrees_log
-		#print "list des count en log : "
-		#print list_count_log
-
-        a=plt.plot(list_degrees_log,list_count_log)
-        plt.savefig("img/plot"+str(self.id)+"_gen"+str(self.generation)+".png") # save as png
-        plt.clf()
-
+        #print "liste des degrés en log :"
+        #print list_degrees_log
+        #print "list des count en log : "
+        #print list_count_log
+        
+        #a=plt.plot(list_degrees_log,list_count_log)
+        #plt.savefig("img/plot"+str(self.id)+"_gen"+str(self.generation)+".png") # save as png
+        #plt.clf()
+        
         slope=stats.linregress(list_degrees_log,list_count)
-        print slope
-
+        self.score_pdl = abs(-2.5-slope[0])*(1-slope[2]**2)
+        print "score_pdl = ", self.score_pdl
+        
+        """ small world """
+        L = nx.average_shortest_path_length(self.graph)
+        C = nx.average_clustering(self.graph)
+        self.score_sw = (C/C_RAND)+(L/L_RAND)
+        print "score sw = ",self.score_sw
 
         """ Fitness function """
-        self.score = abs(-2.5-slope[0])*(1-slope[2]**2)
-        print self.score
+        self.score = self.score_sw
+        print "score global =",self.score
         return self.score
-
+    
 ####################################################################
 #			Main
 ####################################################################
