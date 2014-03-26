@@ -37,7 +37,7 @@ class Gaia():
     """ Run the genetic algorithm and select the individuals """
     def __init__(self):
         pass
-
+    
 ####################################################################
 #			Population
 ####################################################################
@@ -67,7 +67,7 @@ class Population():
         for i in range(self.size_pop):
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=str(i)))
             self.score.append(0)
-
+            
     def genetic_algo(self):
         """ Inspired by
         http://fr.wikipedia.org/wiki/Algorithme_g%C3%A9n%C3%A9tique#Sch.C3.A9ma_r.C3.A9capitulatif
@@ -115,7 +115,7 @@ class Population():
             self.selected_indiv.append(self.indiv[indice])
             self.selected_score.append(self.score[indice])
         print "selected",self.selected_score,map(lambda x: x.id ,self.selected_indiv)
-
+        
     def tournament(self,a,b):
         if self.score[a]>=self.score[b]:
             higher = a
@@ -131,7 +131,7 @@ class Population():
         """ Choose type of selection """
 		#self.roulette_wheel_selec()
         self.elitist_selec()
-            
+        
     def crossormut(self):
         while len(self.selected_indiv) != 0:
             rand = rd.random()
@@ -150,7 +150,7 @@ class Population():
                 self.next_gen.append(sample)
                     
     def trans_indiv(self,x):
-		#self.next_gen.append(x)
+        #self.next_gen.append(x)
         self.selected_indiv.remove(x)
         
     def cross(self,(ind1,ind2)):
@@ -162,19 +162,19 @@ class Population():
         X = np.array(nx.adjacency_matrix(nx.fast_gnp_random_graph(self.size_indiv,0.2))).astype(int)
         self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=ind1.id))
         self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=ind2.id))
-            
+        
     def mutation(self,ind):
         #print "mutation"
         """ 30% of variability """
         self.next_gen.append(Individual(mat = ind.apply_mutations(), id=ind.id))
-
+        
 ####################################################################
 #			Individual
 ####################################################################
 class Individual():
     """ Metabolic graph """
     def __init__(self,mat=0, nb_nodes=25,id=0):
-		#self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
+        #self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
         self.id = id
         self.generation = 0
         self.score = 0
@@ -198,50 +198,50 @@ class Individual():
         nx.draw(self.graph)
         b=plt.savefig("img/gen"+str(gen)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-		#plt.show() # display
-		
+        #plt.show() # display
+        
     def apply_mutations(self):
         return self.graph_to_adj_mat()
     
     def calc_score(self):
         """ power degree law """
         dict=self.graph.degree() #dictionnaire des degrés : clé = id noeuds ; valeur = degré
-		#print dict
+        #print dict
         values = sorted((dict.values()))
-		#print values
+	#print values
         list_degrees=[]
         print ("\n" + str(self.id))
         for x in values :
             if x not in list_degrees and x != 0 :
                 list_degrees.append(x)
-				
+                
         list_count = [values.count(x) for x in list_degrees]
-		
+        
         print "liste des degrés :"
         print list_degrees
         print "list des count  : "
         print list_count
-
+        
         list_degrees_log=[math.log10(x) for x in list_degrees]
         list_count_log=[math.log10(x) for x in list_count]
-		#print "liste des degrés en log :"
-		#print list_degrees_log
-		#print "list des count en log : "
-		#print list_count_log
-
+        #print "liste des degrés en log :"
+	#print list_degrees_log
+	#print "list des count en log : "
+	#print list_count_log
+        
         a=plt.plot(list_degrees_log,list_count_log)
         plt.savefig("img/plot"+str(self.id)+"_gen"+str(self.generation)+".png") # save as png
         plt.clf()
-
+        
         slope=stats.linregress(list_degrees_log,list_count)
         print slope
-
-
+        
+        
         """ Fitness function """
         self.score = abs(-2.5-slope[0])*(1-slope[2]**2)
         print self.score
         return self.score
-
+    
 ####################################################################
 #			Main
 ####################################################################
