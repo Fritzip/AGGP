@@ -162,7 +162,7 @@ BEST EVER \t\t BEST LAST GENERATION
         
     def selection(self):
         """ Choose type of selection """
-		#self.roulette_wheel_selec()
+        #self.roulette_wheel_selec()
         self.elitist_selec()
         
     def crossormut(self):
@@ -294,7 +294,7 @@ class Individual():
         """ small world """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (C_RAND/C)+(L/L_RAND)
+        self.score_sw = (1-C)+(abs(L-L_rand)))
         print "score sw = ",self.score_sw
     
     def calc_score(self,generation,i):
