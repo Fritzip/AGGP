@@ -120,9 +120,9 @@ class Population():
     def elitist_selec(self):
         """ Elitist (20%) and tournament selection (80%) """
         self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.score,self.indiv)))))
-        self.best_ever_score, self.best_ever_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv)))))
-        self.selected_indiv += self.best_ever_indiv
-        self.selected_score += self.best_ever_score
+        self.best_ever_score, self.best_ever_indiv = copy.deepcopy(map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv))))))
+        self.selected_indiv = copy.deepcopy(self.best_ever_indiv)
+        self.selected_score = copy.deepcopy(self.best_ever_score)
         while len(self.selected_indiv) != self.size_pop:
             a,b = rd.sample(range(len(self.indiv)),2)
             indice = self.tournament(a,b)
@@ -156,9 +156,13 @@ BEST EVER \t\t BEST LAST GENERATION
         else:
             higher = b
             lower = a
+        
         rand = rd.random()
-        if rand < 0.7: return higher
+        prob = 0.5+((self.score[higher]-self.score[lower])/self.score[higher])*0.5
+        print "prob = %.2f, rand  = %.2f"%(prob,rand)
+        if rand > prob: return higher
         else: return lower
+        
         
     def selection(self):
         """ Choose type of selection """
@@ -277,7 +281,7 @@ class Individual():
         else : 
             sanction_pente=0
         
-        self.score_pdl = abs(-2.5-slope[0])*10+SCE+sanction+sanction_pente
+        self.score_pdl = abs(-3-slope[0])*10+SCE+sanction+sanction_pente
         if generation%100==0:
             print ("\n" + str(self.id))
             print ("id="+str(i))
@@ -294,7 +298,7 @@ class Individual():
         """ small world """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (1-C)+(abs(L-L_rand)))
+        self.score_sw = (1-C)+(abs(L-L_RAND))
         print "score sw = ",self.score_sw
     
     def calc_score(self,generation,i):
