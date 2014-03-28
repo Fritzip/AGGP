@@ -12,7 +12,7 @@ from scipy import stats as stats
 ####################################################################
 #			Global Parameters
 ####################################################################
-NB_NODES = 50
+NB_NODES = 25
 NB_INDIV = 20
 G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
 C_RAND = nx.average_clustering(G_RAND)
@@ -83,7 +83,7 @@ class Population():
         http://fr.wikipedia.org/wiki/Algorithme_g%C3%A9n%C3%A9tique#Sch.C3.A9ma_r.C3.A9capitulatif
         """
         
-        while True:
+        while self.generation<100:
             print "\n génération = ",self.generation
             if self.generation%10==0:
                 for indi in self.indiv : 
@@ -98,9 +98,11 @@ class Population():
             
     def evaluation(self):
         """ Compute the score using fitness function """
+        count = 0
         for i in range(len(self.indiv)):
             try:
-                self.score[i] = self.indiv[i].calc_score()
+                self.score[i] = self.indiv[i].calc_score(self.generation,count)
+                count+=1
             except nx.NetworkXError:
                 self.score[i] = 100
             print "%.2f\t%s"%(self.score[i],self.indiv[i].id) #"\n",indi.graph_to_adj_mat()
@@ -208,7 +210,11 @@ class Individual():
         #self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
         self.id = id
         #self.generation = 0
+        self.score_pdl = 0
+        self.score_sw = 0
         self.score = 0
+        self.list_degrees_log=[]
+        self.list_count_log=[]
         #self.graph = self.adj_mat_to_graph(mat) if isinstance(mat,np.ndarray) else nx.fast_gnp_random_graph(nb_nodes,0.2)# random graph
         try:
             self.graph = self.adj_mat_to_graph(mat)
@@ -230,55 +236,80 @@ class Individual():
         b=plt.savefig("img/gen"+str(gen)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
         #plt.show() # display
+
+    def degree_graph(self,list_degrees_log,list_count_log,generation,i):
+        if generation%2==0 :
+            a=plt.plot(list_degrees_log,list_count_log)
+            plt.savefig("img/plot"+"_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
+            plt.clf()
         
     def apply_mutations(self):
         return self.graph_to_adj_mat()
-    
-    def calc_score(self):
+
+    def power_degree_law(self,generation,i):
         """ power degree law """
         dict=self.graph.degree() #dictionnaire des degrés : clé = id noeuds ; valeur = degré
         #print dict
         values = sorted((dict.values()))
 	#print values
         list_degrees=[]
-        print "\n## %s ##"%self.id
         for x in values :
             if x not in list_degrees and x != 0 :
                 list_degrees.append(x)
                 
         list_count = [values.count(x) for x in list_degrees]
         
-        print "liste des degrés :"
-        print list_degrees
-        print "list des count  : "
-        print list_count
-        
         list_degrees_log=[math.log10(x) for x in list_degrees]
         list_count_log=[math.log10(x) for x in list_count]
         #print "liste des degrés en log :"
-        #print list_degrees_log
-        #print "list des count en log : "
-        #print list_count_log
+        self.degree_graph(list_degrees_log,list_count_log,generation,i)
         
-        #a=plt.plot(list_degrees_log,list_count_log)
-        #plt.savefig("img/plot"+str(self.id)+"_gen"+str(self.generation)+".png") # save as png
-        #plt.clf()
+        slope=stats.linregress(list_degrees_log,list_count_log)
+        #print slope
+        SCE=(slope[4]**2)*25
+
+        if nx.is_connected(self.graph) == False:
+            sanction = 100
+        else :
+            sanction=0
+        if slope[0] > 0 :
+            sanction_pente = 20
+        else : 
+            sanction_pente=0
         
-        slope=stats.linregress(list_degrees_log,list_count)
-        self.score_pdl = abs(-2.5-slope[0])*(1-slope[2]**2)
+        self.score_pdl = abs(-2.5-slope[0])*10+SCE+sanction+sanction_pente
+        if generation%100==0:
+            print ("\n" + str(self.id))
+            print ("id="+str(i))
+            #print "liste des degrés :"
+            #print list_degrees
+            #print "list des count  : "
+            #print list_count
+            print slope
+            print "erreur de pente : "+str(abs(-2.5-slope[0])*10)
+            print "SCE : " + str(SCE)
         print "score_pdl = ", self.score_pdl
         
+    def small_world(self):
         """ small world """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (C/C_RAND)+(L/L_RAND)
+        self.score_sw = (C_RAND/C)+(L/L_RAND)
         print "score sw = ",self.score_sw
-
+    
+    def calc_score(self,generation,i):
         """ Fitness function """
-        self.score = self.score_sw
+        print "\n## %s ##"%self.id
+        self.score_pdl = 0
+        self.score_sw = 0
+
+        self.power_degree_law(generation,i)
+        self.small_world()
+
+        self.score = self.score_sw + self.score_pdl
         print "score global =",self.score
         return self.score
-    
+
 ####################################################################
 #			Main
 ####################################################################
