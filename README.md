@@ -3,54 +3,54 @@ AGGP
 
 #### Générateur de graphes biologiquement plausibles par algorithme génétique.
 
-* Compte github à créer
+* Installer Git
 
-Dans user settings, ssh keys : coller sa clef rsa, obtenue avec : 
-Si plusieurs ordis, plusieurs clefs à mettre ;)
+> apt-get install git
 
->ssh-keygen -t rsa -C "votremailidentifiant"
+* Créer un compte GitHub
+
+    *Dans `Acount settings -> SSH keys` coller sa clef RSA, obtenue avec : 
+
+>ssh-keygen -t rsa -C <votremailidentifiant>
 
 >cat ~/.ssh/id_rsa.pub
 
-Me donner votre identifiant pour que je vous ajoute au projet. 
+Si plusieurs ordis, plusieurs clefs à mettre ;)
+
+    *Me donner votre identifiant pour que je vous ajoute au projet. 
 
 
 
-* Pour récupérer le code : première fois :
+* Pour récupérer le code pour la première fois :
 
-dans un terminal avec git d'installer, sinon sous Ubuntu.debian : apt-get install git
+> git clone https://github.com/Fritzip/AGGP.git
 
->$ git clone https://github.com/Fritzip/AGGP.git
-
-
-ça crée le dossier avec les fichiers,
-
-vous pouvez maintenant tout modifier normalement,
+ça crée le dossier AGGP avec les fichiers, vous pouvez maintenant tout modifier normalement,
 
 * Une fois le dossier créer avant de travailler, mettre à jour le dépot (pour prendre en compte les modifs des autres)
 
->$ git pull
+> git pull
 
 (il faut etre dans le dossier)
 
 
-* Après chaque changement IMPORTANT : faire un commit :
+* Après chaque changement IMPORTANT, faire un commit :
 
->$ git commit -a -m 'un message explicite !'
+> git commit -a -m 'un message explicite !'
 
-* A la fin de la session de travail : 
+* A la fin de la session de travail (et si tout fonctionne bien !), envoyer sur le dépot:
 
->$ git push -u origin master
+> git push -u origin master
 
 cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on en profite pas !
 
-* pour ajouter un fichier :
+* Pour ajouter un fichier:
  
->$ git add fichier
+> git add <fichier>
 
-* pour voir l'état de git : (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas )
+* Pour voir l'état de git : (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas )
 
->$ git status
+> git status
 
 
 Un peu [plus d'aide là](http://doc.ubuntu-fr.org), si vous voulez :
