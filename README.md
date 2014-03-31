@@ -12,7 +12,7 @@ AGGP
     * Dans `Acount settings -> SSH keys` coller sa clef RSA, obtenue avec : 
 
 
-            ssh-keygen -t rsa -C votremailidentifiant 
+            ssh-keygen -t rsa -C <votremailidentifiant> 
             cat ~/.ssh/id_rsa.pub
 
         Si plusieurs ordis, plusieurs clefs à mettre ;)
