@@ -12,12 +12,20 @@ from scipy import stats as stats
 ####################################################################
 #			Global Parameters
 ####################################################################
-NB_NODES = 25
-NB_INDIV = 20
-G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-C_RAND = nx.average_clustering(G_RAND)
-L_RAND = nx.average_shortest_path_length(G_RAND)
-NAMES = open("names.txt").read().splitlines()
+while True:
+    try:
+        NB_GEN = 100
+        NB_NODES = 25
+        NB_INDIV = 20
+        G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+        C_RAND = nx.average_clustering(G_RAND)
+        L_RAND = nx.average_shortest_path_length(G_RAND)
+        NAMES = open("names.txt").read().splitlines()
+        ERROR = False
+        break
+    except:
+        pass
+
 
 ####################################################################
 #			Global Functions
@@ -83,9 +91,9 @@ class Population():
         http://fr.wikipedia.org/wiki/Algorithme_g%C3%A9n%C3%A9tique#Sch.C3.A9ma_r.C3.A9capitulatif
         """
         
-        while self.generation<100:
-            print "\n génération = ",self.generation
-            if self.generation%10==0:
+        while self.generation<NB_GEN and not ERROR:
+            print "\n###############################\n##\tGénération = %d\n###############################\n"%self.generation
+            if self.generation%10==100000000:
                 for indi in self.indiv : 
                     indi.graphizer(self.generation)
             self.evaluation()
@@ -119,8 +127,24 @@ class Population():
             
     def elitist_selec(self):
         """ Elitist (20%) and tournament selection (80%) """
-        self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.score,self.indiv)))))
-        self.best_ever_score, self.best_ever_indiv = copy.deepcopy(map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv))))))
+        #self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.score,self.indiv)))))
+        #self.best_ever_score, self.best_ever_indiv = copy.deepcopy(map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv))))))
+
+        self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x),zip(*(sorted(zip(self.score,self.indiv)))))
+        self.best_temp_score, self.best_temp_indiv = copy.deepcopy(map(lambda x : list(x),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv))))))
+
+        self.indices_best = [0]
+        indice = 1
+        while len(self.indices_best) != self.nb_best or indice >= len(self.best_temp_indiv):
+            if not np.array_equal(self.best_temp_indiv[indice].graph_to_adj_mat(), self.best_temp_indiv[self.indices_best[-1]].graph_to_adj_mat()):
+                self.indices_best.append(indice)
+            indice += 1
+        if len(self.indices_best) != self.nb_best:
+            ERROR = True
+
+        self.best_ever_indiv = map(lambda x: self.best_temp_indiv[x] ,self.indices_best)
+        self.best_ever_score = map(lambda x: self.best_temp_score[x] ,self.indices_best)
+
         self.selected_indiv = copy.deepcopy(self.best_ever_indiv)
         self.selected_score = copy.deepcopy(self.best_ever_score)
         while len(self.selected_indiv) != self.size_pop:
@@ -128,26 +152,21 @@ class Population():
             indice = self.tournament(a,b)
             self.selected_indiv.append(self.indiv[indice])
             self.selected_score.append(self.score[indice])
-
+        
         ### Print, just print
         ever = map(lambda x: x.id ,self.best_ever_indiv)
         last = map(lambda x: x.id ,self.best_last_gen_indiv)
         select = map(lambda x: x.id ,self.selected_indiv)
-        
-        print """\n####################################################
-BEST EVER \t\t BEST LAST GENERATION
-####################################################"""
+        print ever, last, select
+        print self.best_ever_score,self.best_last_gen_score
+
+        print "\n####################################################\n## BEST EVER \t\t BEST LAST GENERATION\n####################################################"
         for i in range(len(self.best_ever_score)):
             print "%.2f\t%s\t | \t%.2f\t%s"%(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
             
-        print """\n##########################
-        SELECTED
-##########################"""
+        print "\n##########################\n## SELECTED\n##########################"
         for i in range(len(self.selected_indiv)):
             print "%.2f\t%s"%(self.selected_score[i],select[i])
-        #print "best last",self.best_last_gen_score,map(lambda x: x.id ,self.best_last_gen_indiv)
-        #print "best ever",self.best_ever_score,map(lambda x: x.id ,self.best_ever_indiv)
-        #print "selected",self.selected_score,map(lambda x: x.id ,self.selected_indiv)
         
     def tournament(self,a,b):
         if self.score[a]>=self.score[b]:
@@ -160,6 +179,10 @@ BEST EVER \t\t BEST LAST GENERATION
         rand = rd.random()
         prob = 0.5+((self.score[higher]-self.score[lower])/self.score[higher])*0.5
         print "prob = %.2f, rand  = %.2f"%(prob,rand)
+        print self.indiv[higher].id,self.indiv[lower].id
+        print self.score[higher]==self.score[lower]
+        print self.indiv[higher]==self.indiv[lower]
+        print np.array_equal(self.indiv[higher].graph_to_adj_mat(),self.indiv[lower].graph_to_adj_mat())
         if rand > prob: return higher
         else: return lower
         
@@ -242,7 +265,7 @@ class Individual():
         #plt.show() # display
 
     def degree_graph(self,list_degrees_log,list_count_log,generation,i):
-        if generation%2==0 :
+        if generation%2==1500000 :
             a=plt.plot(list_degrees_log,list_count_log)
             plt.savefig("img/plot"+"_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
             plt.clf()
