@@ -7,6 +7,7 @@ import numpy as np
 import random as rd
 import copy
 import math
+import sys
 from scipy import stats as stats
 
 ####################################################################
@@ -14,6 +15,8 @@ from scipy import stats as stats
 ####################################################################
 while True:
     try:
+        PLOT_DG = 101 # plot degree graph every X generation
+        PLOT_GR = 10 # plot graph every X generation
         NB_GEN = 100
         NB_NODES = 25
         NB_INDIV = 20
@@ -32,6 +35,10 @@ while True:
 ####################################################################
 def symetrize(a):
     return -a*a.T + a + a.T
+
+def update_progress(progress,bar_length=20):
+    sys.stdout.write('\r[{0}] {1}%'.format('#'*(progress/int(100./bar_length))+' '*(bar_length-(progress/int(100./bar_length))), progress))
+    sys.stdout.flush()
 
 def weighted_sample(items, n):
     total = float(sum(w for w, v in items))
@@ -93,9 +100,11 @@ class Population():
         
         while self.generation<NB_GEN and not ERROR:
             print "\n###############################\n##\tGénération = %d\n###############################\n"%self.generation
-            if self.generation%10==100000000:
+            if self.generation%PLOT_GR==0:
+                i=0
                 for indi in self.indiv : 
-                    indi.graphizer(self.generation)
+                    indi.graphizer(self.generation,i)
+                    i += int(100./len(self.indiv))
             self.evaluation()
             self.selection()
             self.crossormut()
@@ -234,22 +243,15 @@ class Population():
 class Individual():
     """ Metabolic graph """
     def __init__(self,mat=0, nb_nodes=NB_NODES,id=rd.choice(NAMES)):
-        #self.matrix = symetrize(np.random.binomial(1, 0.2, nb_nodes**2).reshape(nb_nodes,nb_nodes)) # random
         self.id = id
-        #self.generation = 0
         self.score_pdl = 0
         self.score_sw = 0
         self.score = 0
         self.list_degrees_log=[]
         self.list_count_log=[]
-        #self.graph = self.adj_mat_to_graph(mat) if isinstance(mat,np.ndarray) else nx.fast_gnp_random_graph(nb_nodes,0.2)# random graph
         try:
             self.graph = self.adj_mat_to_graph(mat)
-            #print self.graph
         except:
-            #print "Erreur"
-            #print type(mat)
-            #print mat
             self.graph = nx.fast_gnp_random_graph(nb_nodes,0.2)
             
     def graph_to_adj_mat(self):
@@ -258,14 +260,14 @@ class Individual():
     def adj_mat_to_graph(self, mat):
         return nx.from_numpy_matrix(mat)
     
-    def graphizer(self, gen):
+    def graphizer(self, gen,i):
+        update_progress(i)
         nx.draw(self.graph)
         b=plt.savefig("img/gen"+str(gen)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-        #plt.show() # display
 
     def degree_graph(self,list_degrees_log,list_count_log,generation,i):
-        if generation%2==1500000 :
+        if generation%PLOT_DG==0 :
             a=plt.plot(list_degrees_log,list_count_log)
             plt.savefig("img/plot"+"_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
             plt.clf()
