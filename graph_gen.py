@@ -15,11 +15,13 @@ from scipy import stats as stats
 ####################################################################
 while True:
     try:
+        INFO_INDIV = False
+        INFO_GEN = False
         PLOT_DG = 101 # plot degree graph every X generation
         PLOT_GR = 10 # plot graph every X generation
         NB_GEN = 100
-        NB_NODES = 25
-        NB_INDIV = 20
+        NB_NODES = 20
+        NB_INDIV = 33
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
         L_RAND = nx.average_shortest_path_length(G_RAND)
@@ -36,8 +38,10 @@ while True:
 def symetrize(a):
     return -a*a.T + a + a.T
 
-def update_progress(progress,bar_length=20):
-    sys.stdout.write('\r[{0}] {1}%'.format('#'*(progress/int(100./bar_length))+' '*(bar_length-(progress/int(100./bar_length))), progress))
+def update_progress(progress,bar_length=25): # small 20, medium 25, large 50
+    progress = int(progress)
+    if progress > 100 : progress = 100
+    sys.stdout.write('\rPlotting in progress [{0}] {1}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress))
     sys.stdout.flush()
 
 def weighted_sample(items, n):
@@ -83,7 +87,7 @@ class Population():
         
         self.next_gen = []
         
-        self.generation = 0
+        self.generation = 1
         
         self.size_pop = size_pop
         self.size_indiv = size_indiv
@@ -94,17 +98,13 @@ class Population():
             self.score.append(0)
             
     def genetic_algo(self):
-        """ Inspired by
-        http://fr.wikipedia.org/wiki/Algorithme_g%C3%A9n%C3%A9tique#Sch.C3.A9ma_r.C3.A9capitulatif
-        """
-        
         while self.generation<NB_GEN and not ERROR:
             print "\n###############################\n##\tGénération = %d\n###############################\n"%self.generation
             if self.generation%PLOT_GR==0:
-                i=0
-                for indi in self.indiv : 
+                i=1
+                for indi in self.indiv :
+                    i += 100./len(self.indiv)
                     indi.graphizer(self.generation,i)
-                    i += int(100./len(self.indiv))
             self.evaluation()
             self.selection()
             self.crossormut()
@@ -122,9 +122,16 @@ class Population():
                 count+=1
             except nx.NetworkXError:
                 self.score[i] = 100
-            print "%.2f\t%s"%(self.score[i],self.indiv[i].id) #"\n",indi.graph_to_adj_mat()
-            print "\n==================================="
-            
+                self.indiv[i].score = 100
+            if INFO_INDIV:
+                indi = self.indiv[i]
+                print "+{}+".format('-'*30)
+                print "|{}|".format(indi.id.center(30))
+                print "| {0:6.2f} | {1:<19} |".format(indi.score_pdl,"Power Degree Law")
+                print "| {0:6.2f} | {1:<19} |".format(indi.score_sw,"Small World")
+                print "| {0:6.2f} | {1:<19} |".format(indi.score,"Global")
+                print "+{}+\n".format('-'*30)
+
     def roulette_wheel_selec(self):
         """ Roulette wheel selection """
         zipper = zip(self.score,self.indiv)
@@ -163,19 +170,32 @@ class Population():
             self.selected_score.append(self.score[indice])
         
         ### Print, just print
-        ever = map(lambda x: x.id ,self.best_ever_indiv)
-        last = map(lambda x: x.id ,self.best_last_gen_indiv)
-        select = map(lambda x: x.id ,self.selected_indiv)
-        print ever, last, select
-        print self.best_ever_score,self.best_last_gen_score
+        if INFO_GEN:
+            ever = map(lambda x: x.id ,self.best_ever_indiv)
+            last = map(lambda x: x.id ,self.best_last_gen_indiv)
+            select = map(lambda x: x.id ,self.selected_indiv)
+            #print ever, last, select
+            #print self.best_ever_score,self.best_last_gen_score
 
-        print "\n####################################################\n## BEST EVER \t\t BEST LAST GENERATION\n####################################################"
-        for i in range(len(self.best_ever_score)):
-            print "%.2f\t%s\t | \t%.2f\t%s"%(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
+            #print "+{}+".format('-'*30)
+            #print "|{}|".format(indi.id.center(30))
+            #print "| {0:6.2f} | {1:<19} |".format(indi.score_pdl,"Power Degree Law")
+            #print "| {0:6.2f} | {1:<19} |".format(indi.score_sw,"Small World")
+            #print "| {0:6.2f} | {1:<19} |".format(indi.score,"Global")
+            #print "+{}+\n".format('-'*30)
             
-        print "\n##########################\n## SELECTED\n##########################"
-        for i in range(len(self.selected_indiv)):
-            print "%.2f\t%s"%(self.selected_score[i],select[i])
+            LONG = 75
+            print "\n╔{0}╦{0}╦{0}╗".format('═'*((LONG-4)/3))
+            print "║{0}║{1}║{2}║".format("BEST EVER".center((LONG-4)/3),"BEST LAST GEN".center((LONG-4)/3),"SELECTED".center((LONG-4)/3))
+            print "╟{0}╫{0}╫{0}╢".format('═'*((LONG-4)/3))
+            
+            for i in range(len(self.best_ever_score)):
+                print "║{0:6.2f} ┆ {1:<14}║{2:6.2f} ┆ {3:<14}║{4:6.2f} ┆ {5:<14}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i],self.selected_score[i],select[i])
+            
+            for i in range(len(self.best_ever_score),len(self.selected_indiv)):
+                print "║{0:<6} ┆ {1:<14}║{2:<6} ┆ {3:<14}║{4:6.2f} ┆ {5:<14}║".format('','','','',self.selected_score[i],select[i])
+                
+            print "╚{0}╩{0}╩{0}╝".format('═'*((LONG-4)/3))
         
     def tournament(self,a,b):
         if self.score[a]>=self.score[b]:
@@ -187,11 +207,8 @@ class Population():
         
         rand = rd.random()
         prob = 0.5+((self.score[higher]-self.score[lower])/self.score[higher])*0.5
-        print "prob = %.2f, rand  = %.2f"%(prob,rand)
-        print self.indiv[higher].id,self.indiv[lower].id
-        print self.score[higher]==self.score[lower]
-        print self.indiv[higher]==self.indiv[lower]
-        print np.array_equal(self.indiv[higher].graph_to_adj_mat(),self.indiv[lower].graph_to_adj_mat())
+        #print "prob = %.2f, rand  = %.2f"%(prob,rand)
+        #print self.indiv[higher].id,self.indiv[lower].id
         if rand > prob: return higher
         else: return lower
         
@@ -317,18 +334,17 @@ class Individual():
             print slope
             print "erreur de pente : "+str(abs(-2.5-slope[0])*10)
             print "SCE : " + str(SCE)
-        print "score_pdl = ", self.score_pdl
+        
         
     def small_world(self):
         """ small world """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
         self.score_sw = (1-C)+(abs(L-L_RAND))
-        print "score sw = ",self.score_sw
+        
     
     def calc_score(self,generation,i):
         """ Fitness function """
-        print "\n## %s ##"%self.id
         self.score_pdl = 0
         self.score_sw = 0
 
@@ -336,7 +352,7 @@ class Individual():
         self.small_world()
 
         self.score = self.score_sw + self.score_pdl
-        print "score global =",self.score
+
         return self.score
 
 ####################################################################
