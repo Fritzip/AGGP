@@ -8,6 +8,7 @@ import random as rd
 import copy
 import math
 import sys
+import time
 from scipy import stats as stats
 
 ####################################################################
@@ -15,28 +16,47 @@ from scipy import stats as stats
 ####################################################################
 while True:
     try:
+        # Plot information box
         INFO_INDIV = False
         INFO_BEST = False
         INFO_SELECT = False
         INFO_GEN = True
+        INFO_FREQ = 10 # information frequency (every X generation)
+        
+        # Plot png in /img
         PLOT_DG = 101 # plot degree graph every X generation
         PLOT_GR = 10 # plot graph every X generation
-        NB_GEN = 100
+
+        # Parameters of algogen
+        NB_GEN = 100 # genetic algo's iteration number
         NB_NODES = 25
         NB_INDIV = 20
-        G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-        C_RAND = nx.average_clustering(G_RAND)
-        L_RAND = nx.average_shortest_path_length(G_RAND)
+        
+        # Rates
         RATE_ELITISM = 0.2 
         RATE_TOURNAMENT = 1-RATE_ELITISM
         RATE_CROSS = 0.7
         RATE_MUT = 0.2
+        
+        # Random Reference
+        G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+        C_RAND = nx.average_clustering(G_RAND)
+        L_RAND = nx.average_shortest_path_length(G_RAND)
+        
+        # Miscellanous
         NAMES = open("names.txt").read().splitlines()
         ERROR = False
         break
     except:
         pass
 
+# Colors
+HEADER = '\033[1m' # bold
+OKBLUE = '\033[94m' # blue
+OKGREEN = '\033[92m' # green
+WARNING = '\033[93m' # yellow
+FAIL = '\033[91m' # red
+ENDC = '\033[0m' # back to normal
 
 ####################################################################
 #			Global Functions
@@ -47,10 +67,11 @@ def symetrize(a):
 def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 50
     progress = int(progress)
     if progress > 100 : progress = 100
-    sys.stdout.write('\r{2:<25}[{0}] {1}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
+    sys.stdout.write('\r{2:<25}[{0}]{1:3d}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
     sys.stdout.flush()
 
 def weighted_sample(items, n):
+    """ deprecated (used in wheel selection)"""
     total = float(sum(w for w, v in items))
     i = 0
     w, v = items[0]
@@ -64,14 +85,6 @@ def weighted_sample(items, n):
             w -= x
             yield v
             n -= 1
-
-####################################################################
-#			Gaïa
-####################################################################
-class Gaia():
-    """ Run the genetic algorithm and select the individuals """
-    def __init__(self):
-        pass
     
 ####################################################################
 #			Population
@@ -100,33 +113,43 @@ class Population():
         self.nb_best = int(self.size_pop*RATE_ELITISM)+1
         
         for i in range(self.size_pop):
-            update_progress("Initializing",((i+1)*100.)/self.size_pop)
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
-        print "\tDone"
         
     
     def genetic_algo(self):
+        start_algo = time.time()
         
         while self.generation<NB_GEN and not ERROR:
-            if INFO_GEN:
-                print "\n╔{0}╗\n║{1}║\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(32))
-            if self.generation%PLOT_GR==0:
-                i=1
-                for indi in self.indiv :
-                    i += 100./len(self.indiv)
-                    indi.graphizer(self.generation,i)
-                print "\tDone"
-
-            self.evaluation()
-            self.selection()
-            self.crossormut()
-            self.indiv = []
-            self.indiv = copy.deepcopy(self.next_gen)
-            self.next_gen = []
-            self.generation += 1
+            try:
+                start = time.time()
+                self.evaluation()
+                self.selection()
+                self.crossormut()
+                self.indiv = []
+                self.indiv = copy.deepcopy(self.next_gen)
+                self.next_gen = []
+                
+                # INFO GENERATION BOX
+                if INFO_GEN and self.generation%INFO_FREQ==0:
+                    print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*35,"GENERATION {0}".format(self.generation).center(33),HEADER,ENDC)
+                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC)
+                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
+                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
+                    print "╚{0}╝".format('═'*35)
+                    
+                    if self.generation%PLOT_GR==0:
+                        i=1
+                        for indi in self.indiv :
+                            i += 100./len(self.indiv)
+                            indi.graphizer(self.generation,i)
+                
+                self.generation += 1
+            except KeyboardInterrupt:
+                print "\nKeyboard Interrupt"
+                break
             
-
+        print "Done in %.3f sec"%(time.time()-start_algo)
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         
             
@@ -140,7 +163,7 @@ class Population():
             except nx.NetworkXError:
                 self.score[i] = 100
                 self.indiv[i].score = 100
-            if INFO_INDIV:
+            if INFO_INDIV and self.generation%INFO_FREQ==0:
                 indi = self.indiv[i]
                 print "+{}+".format('-'*30)
                 print "|{}|".format(indi.id.center(30))
@@ -187,7 +210,7 @@ class Population():
             self.selected_score.append(self.score[indice])
         
         ### Print, just print
-        if INFO_BEST:
+        if INFO_BEST and self.generation%INFO_FREQ==0:
             ever = map(lambda x: x.id ,self.best_ever_indiv)
             last = map(lambda x: x.id ,self.best_last_gen_indiv)
                                     
@@ -201,7 +224,7 @@ class Population():
 
             print "╚{0}╩{0}╝\n".format('═'*((LONG-3)/2))
         
-        if INFO_SELECT:
+        if INFO_SELECT and self.generation%INFO_FREQ==0:
             select = map(lambda x: x.id ,self.selected_indiv)
             
             LONG = 75
@@ -215,7 +238,7 @@ class Population():
             if NB_INDIV%3==1:
                 print "║{0:6.2f} ┆ {1:<14}│{2:<6} ┆ {3:<14}│{4:<6} ┆ {5:<14}║".format(self.selected_score[-1],select[-1],'','','','')
             elif NB_INDIV%3==2:
-                print "║{0:6.2f} ┆ {1:<14}│{2:<6} ┆ {3:<14}│{4:<6} ┆ {5:<14}║".format(self.selected_score[-1],select[-1],self.selected_score[-2],select[-2],'','')
+                print "║{0:6.2f} ┆ {1:<14}│{2:6.2f} ┆ {3:<14}│{4:<6} ┆ {5:<14}║".format(self.selected_score[-1],select[-1],self.selected_score[-2],select[-2],'','')
             print "╚{0}╧{0}╧{0}╝".format('═'*((LONG-4)/3))
             
                 
@@ -377,6 +400,5 @@ class Individual():
 #			Main
 ####################################################################
 if __name__ == "__main__":
-    update_progress("Initializing",0)
     a = Population()
     a.genetic_algo()
