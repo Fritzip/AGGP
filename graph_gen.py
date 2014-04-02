@@ -29,6 +29,8 @@ while True:
         L_RAND = nx.average_shortest_path_length(G_RAND)
         RATE_ELITISM = 0.2 
         RATE_TOURNAMENT = 1-RATE_ELITISM
+        RATE_CROSS = 0.7
+        RATE_MUT = 0.2
         NAMES = open("names.txt").read().splitlines()
         ERROR = False
         break
@@ -104,8 +106,7 @@ class Population():
     def genetic_algo(self):
         
         while self.generation<NB_GEN and not ERROR:
-            print "\n╔{0}╗\n{1}\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(30))
-            print "\n###############################\n##\tGénération = %d\n###############################\n"%self.generation
+            print "\n╔{0}╗\n║{1}║\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(32))
             if self.generation%PLOT_GR==0:
                 i=1
                 for indi in self.indiv :
