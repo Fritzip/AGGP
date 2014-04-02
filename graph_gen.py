@@ -27,6 +27,8 @@ while True:
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
         L_RAND = nx.average_shortest_path_length(G_RAND)
+        RATE_ELITISM = 0.2 
+        RATE_TOURNAMENT = 1-RATE_ELITISM
         NAMES = open("names.txt").read().splitlines()
         ERROR = False
         break
@@ -93,14 +95,16 @@ class Population():
         
         self.size_pop = size_pop
         self.size_indiv = size_indiv
-        self.nb_best = int(self.size_pop*0.2)+1
+        self.nb_best = int(self.size_pop*RATE_ELITISM)+1
 
         for i in range(self.size_pop):
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
             
     def genetic_algo(self):
+        
         while self.generation<NB_GEN and not ERROR:
+            print "\n╔{0}╗\n{1}\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(30))
             print "\n###############################\n##\tGénération = %d\n###############################\n"%self.generation
             if self.generation%PLOT_GR==0:
                 i=1
@@ -114,6 +118,9 @@ class Population():
             self.indiv = copy.deepcopy(self.next_gen)
             self.next_gen = []
             self.generation += 1
+
+        # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
+        
             
     def evaluation(self):
         """ Compute the score using fitness function """
@@ -229,37 +236,32 @@ class Population():
     def crossormut(self):
         while len(self.selected_indiv) != 0:
             rand = rd.random()
-            if rand < 0.7 and len(self.selected_indiv) > 1:
+            if rand < RATE_CROSS and len(self.selected_indiv) > 1:
                 sample = rd.sample(self.selected_indiv,2)
                 map(self.trans_indiv ,sample)
                 self.cross(tuple(sample))
-            elif rand < 0.9:
+            elif rand < RATE_MUT+RATE_CROSS:
                 sample = rd.sample(self.selected_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.mutation(sample)
             else :
-                #print "rien"
                 sample = rd.sample(self.selected_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.next_gen.append(sample)
                     
     def trans_indiv(self,x):
-        #self.next_gen.append(x)
         self.selected_indiv.remove(x)
         
     def cross(self,(ind1,ind2)):
-        #print "croisement"
-        """ Simulate the reproduction beetween two individuals : 70% of variability """
+        """ Simulate the reproduction beetween two individuals : ~70% of variability """
         A = ind1.graph_to_adj_mat()
         B = ind2.graph_to_adj_mat()
-        #X = symetrize(np.random.binomial(1, 0.2, self.size_indiv**2).reshape(self.size_indiv,self.size_indiv))
         X = np.array(nx.adjacency_matrix(nx.fast_gnp_random_graph(self.size_indiv,0.2))).astype(int)
         self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=rd.choice(NAMES)))
         self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=rd.choice(NAMES)))
         
     def mutation(self,ind):
-        #print "mutation"
-        """ 30% of variability """
+        """~20% of variability """
         self.next_gen.append(Individual(mat = ind.apply_mutations(), id=rd.choice(NAMES)))
         
 ####################################################################
