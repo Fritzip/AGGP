@@ -15,15 +15,15 @@ from scipy import stats as stats
 ####################################################################
 while True:
     try:
-        INFO_INDIV = True
-        INFO_BEST = True
-        INFO_SELECT = True
+        INFO_INDIV = False
+        INFO_BEST = False
+        INFO_SELECT = False
         INFO_GEN = True
         PLOT_DG = 101 # plot degree graph every X generation
         PLOT_GR = 10 # plot graph every X generation
         NB_GEN = 100
-        NB_NODES = 20
-        NB_INDIV = 34
+        NB_NODES = 25
+        NB_INDIV = 20
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
         L_RAND = nx.average_shortest_path_length(G_RAND)
@@ -44,10 +44,10 @@ while True:
 def symetrize(a):
     return -a*a.T + a + a.T
 
-def update_progress(progress,bar_length=25): # small 20, medium 25, large 50
+def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 50
     progress = int(progress)
     if progress > 100 : progress = 100
-    sys.stdout.write('\rPlotting in progress [{0}] {1}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress))
+    sys.stdout.write('\r{2:<25}[{0}] {1}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
     sys.stdout.flush()
 
 def weighted_sample(items, n):
@@ -98,20 +98,26 @@ class Population():
         self.size_pop = size_pop
         self.size_indiv = size_indiv
         self.nb_best = int(self.size_pop*RATE_ELITISM)+1
-
+        
         for i in range(self.size_pop):
+            update_progress("Initializing",((i+1)*100.)/self.size_pop)
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
-            
+        print "\tDone"
+        
+    
     def genetic_algo(self):
         
         while self.generation<NB_GEN and not ERROR:
-            print "\n╔{0}╗\n║{1}║\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(32))
+            if INFO_GEN:
+                print "\n╔{0}╗\n║{1}║\n╚{0}╝".format('═'*30,"Génération {0}".format(self.generation).center(32))
             if self.generation%PLOT_GR==0:
                 i=1
                 for indi in self.indiv :
                     i += 100./len(self.indiv)
                     indi.graphizer(self.generation,i)
+                print "\tDone"
+
             self.evaluation()
             self.selection()
             self.crossormut()
@@ -119,6 +125,7 @@ class Population():
             self.indiv = copy.deepcopy(self.next_gen)
             self.next_gen = []
             self.generation += 1
+            
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         
@@ -288,8 +295,8 @@ class Individual():
     def adj_mat_to_graph(self, mat):
         return nx.from_numpy_matrix(mat)
     
-    def graphizer(self, gen,i):
-        update_progress(i)
+    def graphizer(self, gen, i):
+        update_progress("Plotting Generation {}".format(gen),i)
         nx.draw(self.graph)
         b=plt.savefig("img/gen"+str(gen)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
@@ -370,5 +377,6 @@ class Individual():
 #			Main
 ####################################################################
 if __name__ == "__main__":
+    update_progress("Initializing",0)
     a = Population()
     a.genetic_algo()
