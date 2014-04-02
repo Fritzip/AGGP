@@ -15,13 +15,15 @@ from scipy import stats as stats
 ####################################################################
 while True:
     try:
-        INFO_INDIV = False
-        INFO_GEN = False
+        INFO_INDIV = True
+        INFO_BEST = True
+        INFO_SELECT = True
+        INFO_GEN = True
         PLOT_DG = 101 # plot degree graph every X generation
         PLOT_GR = 10 # plot graph every X generation
         NB_GEN = 100
         NB_NODES = 20
-        NB_INDIV = 33
+        NB_INDIV = 34
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
         L_RAND = nx.average_shortest_path_length(G_RAND)
@@ -170,33 +172,39 @@ class Population():
             self.selected_score.append(self.score[indice])
         
         ### Print, just print
-        if INFO_GEN:
+        if INFO_BEST:
             ever = map(lambda x: x.id ,self.best_ever_indiv)
             last = map(lambda x: x.id ,self.best_last_gen_indiv)
-            select = map(lambda x: x.id ,self.selected_indiv)
-            #print ever, last, select
-            #print self.best_ever_score,self.best_last_gen_score
-
-            #print "+{}+".format('-'*30)
-            #print "|{}|".format(indi.id.center(30))
-            #print "| {0:6.2f} | {1:<19} |".format(indi.score_pdl,"Power Degree Law")
-            #print "| {0:6.2f} | {1:<19} |".format(indi.score_sw,"Small World")
-            #print "| {0:6.2f} | {1:<19} |".format(indi.score,"Global")
-            #print "+{}+\n".format('-'*30)
-            
-            LONG = 75
-            print "\n╔{0}╦{0}╦{0}╗".format('═'*((LONG-4)/3))
-            print "║{0}║{1}║{2}║".format("BEST EVER".center((LONG-4)/3),"BEST LAST GEN".center((LONG-4)/3),"SELECTED".center((LONG-4)/3))
-            print "╟{0}╫{0}╫{0}╢".format('═'*((LONG-4)/3))
+                                    
+            LONG = 50
+            print "\n╔{0}╦{0}╗".format('═'*((LONG-3)/2))
+            print "║{0}║{1}║".format("BEST EVER".center((LONG-3)/2),"BEST LAST GEN".center((LONG-3)/2))
+            print "╟{0}╫{0}╢".format('─'*((LONG-3)/2))
             
             for i in range(len(self.best_ever_score)):
-                print "║{0:6.2f} ┆ {1:<14}║{2:6.2f} ┆ {3:<14}║{4:6.2f} ┆ {5:<14}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i],self.selected_score[i],select[i])
-            
-            for i in range(len(self.best_ever_score),len(self.selected_indiv)):
-                print "║{0:<6} ┆ {1:<14}║{2:<6} ┆ {3:<14}║{4:6.2f} ┆ {5:<14}║".format('','','','',self.selected_score[i],select[i])
-                
-            print "╚{0}╩{0}╩{0}╝".format('═'*((LONG-4)/3))
+                print "║{0:6.2f} ┆ {1:<14}║{2:6.2f} ┆ {3:<14}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
+
+            print "╚{0}╩{0}╝\n".format('═'*((LONG-3)/2))
         
+        if INFO_SELECT:
+            select = map(lambda x: x.id ,self.selected_indiv)
+            
+            LONG = 75
+            FAC = len(self.selected_indiv)/3
+
+            print "\n╔{0}╗".format('═'*(LONG-4))
+            print "║{0}║".format("SELECTED".center(LONG-4))
+            print "╟{0}┬{0}┬{0}╢".format('─'*((LONG-4)/3))
+            for i in range(FAC):
+                print "║{0:6.2f} ┆ {1:<14}│{2:6.2f} ┆ {3:<14}│{4:6.2f} ┆ {5:<14}║".format(self.selected_score[i],select[i],self.selected_score[i+FAC],select[i+FAC],self.selected_score[i+FAC*2],select[i+FAC*2])
+            if NB_INDIV%3==1:
+                print "║{0:6.2f} ┆ {1:<14}│{2:<6} ┆ {3:<14}│{4:<6} ┆ {5:<14}║".format(self.selected_score[-1],select[-1],'','','','')
+            elif NB_INDIV%3==2:
+                print "║{0:6.2f} ┆ {1:<14}│{2:<6} ┆ {3:<14}│{4:<6} ┆ {5:<14}║".format(self.selected_score[-1],select[-1],self.selected_score[-2],select[-2],'','')
+            print "╚{0}╧{0}╧{0}╝".format('═'*((LONG-4)/3))
+            
+                
+
     def tournament(self,a,b):
         if self.score[a]>=self.score[b]:
             higher = a
