@@ -21,14 +21,15 @@ while True:
         INFO_BEST = False
         INFO_SELECT = False
         INFO_GEN = True
-        INFO_FREQ = 10 # information frequency (every X generation)
+        INFO_FREQ = 1 # information frequency (every X generation)
         
         # Plot png in /img
-        PLOT_DG = 101 # plot degree graph every X generation
+        PLOT_DG = 1001 # plot degree graph every X generation
         PLOT_GR = 10 # plot graph every X generation
+        PLOT_GEN_ZERO = True
 
         # Parameters of algogen
-        NB_GEN = 100 # genetic algo's iteration number
+        NB_GEN = 1000 # genetic algo's iteration number
         NB_NODES = 25
         NB_INDIV = 20
         
@@ -132,13 +133,13 @@ class Population():
                 
                 # INFO GENERATION BOX
                 if INFO_GEN and self.generation%INFO_FREQ==0:
-                    print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*35,"GENERATION {0}".format(self.generation).center(33),HEADER,ENDC)
-                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC)
-                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
-                    print "║ {2}{0:6.2f} ┆ {1:<24}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
-                    print "╚{0}╝".format('═'*35)
+                    print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*39,"GENERATION {0}".format(self.generation).center(37),HEADER,ENDC)
+                    print "║ {2}{0:6.2f} ┆ {1:<10} : {4:<15}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC,self.best_ever_indiv[0].id)
+                    print "║ {2}{0:6.2f} ┆ {1:<28}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
+                    print "║ {2}{0:6.2f} ┆ {1:<28}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
+                    print "╚{0}╝".format('═'*39)
                     
-                    if self.generation%PLOT_GR==0:
+                    if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
                         i=1
                         for indi in self.indiv :
                             i += 100./len(self.indiv)
@@ -365,7 +366,7 @@ class Individual():
             sanction_pente=0
         
         self.score_pdl = abs(-3-slope[0])*10+SCE+sanction+sanction_pente
-        if generation%100==0:
+        if generation%10000==0:
             print ("\n" + str(self.id))
             print ("id="+str(i))
             #print "liste des degrés :"
@@ -381,7 +382,7 @@ class Individual():
         """ small world """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (1-C)+(abs(L-L_RAND))
+        self.score_sw = 1-C+L
         
     
     def calc_score(self,generation,i):
@@ -389,7 +390,7 @@ class Individual():
         self.score_pdl = 0
         self.score_sw = 0
 
-        self.power_degree_law(generation,i)
+        #self.power_degree_law(generation,i)
         self.small_world()
 
         self.score = self.score_sw + self.score_pdl
