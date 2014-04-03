@@ -21,8 +21,8 @@ while True:
         INFO_FREQ = 4 # information frequency (every X generation)
         
         # Plot png in /img
-        PLOT_DG = 1001 # plot degree graph every X generation
-        PLOT_CG = 1001 # plot clique formation graph every X generation
+        PLOT_PDL = 1001 # plot degree graph every X generation
+        PLOT_CF = 1001 # plot clique formation graph every X generation
         PLOT_GR = 1001 # plot graph every X generation
         PLOT_GEN_ZERO = False # plot initials individuals ?
 
@@ -36,26 +36,33 @@ while True:
         RATE_TOURNAMENT = 1-RATE_ELITISM
         RATE_CROSS = 0.7
         RATE_MUT = 0.2
+
+        # Scores Rates
+        PDL = 1
+        SW = 1
+        CF = 1
         
         # Random Reference
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
         L_RAND = nx.average_shortest_path_length(G_RAND)
         
-        # Miscellanous
+        # Miscellaneous
         NAMES = open("names.txt").read().splitlines()
         ERROR = False
+        EPS = 0.001 # log(x+eps) to avoid log(0)
+
+        # Colors
+        HEADER = '\033[1m' # bold
+        OKBLUE = '\033[94m' # blue
+        OKGREEN = '\033[92m' # green
+        WARNING = '\033[93m' # yellow
+        FAIL = '\033[91m' # red
+        ENDC = '\033[0m' # back to normal
         break
     except:
         pass
 
-# Colors
-HEADER = '\033[1m' # bold
-OKBLUE = '\033[94m' # blue
-OKGREEN = '\033[92m' # green
-WARNING = '\033[93m' # yellow
-FAIL = '\033[91m' # red
-ENDC = '\033[0m' # back to normal
 
 ####################################################################
 #			Global Functions
@@ -339,38 +346,31 @@ class Individual():
         plt.clf()
 
     def degree_graph(self,generation,i):
-        if generation%PLOT_DG==0 :
-            a=plt.plot(self.list_degrees_log_dg,self.list_count_log)
-            plt.savefig("img/DG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
-            plt.clf()
+        plt.plot(self.list_degrees_log,self.list_count_log)
+        plt.savefig("img/DG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
+        plt.clf()
             
     def clique_graph(self,generation,i):
-        if generation%PLOT_CG==0 :
-            a=plt.plot(self.list_degrees_log_cf,self.list_meanclust_log)
-            plt.savefig("img/CG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
-            plt.clf()
+        plt.plot(self.list_degrees_log,self.list_meanclust_log)
+        plt.savefig("img/CG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
+        plt.clf()
                 
     def apply_mutations(self):
         return self.graph_to_adj_mat()
 
     def power_degree_law(self,generation,i):
         """ power degree law """
-        self.degree_graph(generation,i)
+        if generation%PLOT_PDL==0 :
+            self.degree_graph(generation,i) # Plot
         
-        slope=stats.linregress(self.list_degrees_log_dg,self.list_count_log)
-        #print slope
+        slope=stats.linregress(self.list_degrees_log,self.list_count_log)
         SCE=(slope[4]**2)*25 ## 25 ? pour NB_NODES ?
 
-        if nx.is_connected(self.graph) == False:
-            sanction = 100
-        else :
-            sanction=0
-        if slope[0] > 0 :
-            sanction_pente = 20
-        else : 
-            sanction_pente=0
-        
-        self.score_pdl = abs(-2.5-slope[0])*10+SCE+sanction+sanction_pente
+        if slope[0] > 0 : self.penalite += 20
+            
+        self.score_pdl = abs(-2.5-slope[0])*10+SCE
+
+        """
         if generation%1000==0:
             print ("\n" + str(self.id))
             print ("id="+str(i))
@@ -381,47 +381,44 @@ class Individual():
             print slope
             print "erreur de pente : "+str(abs(-2.5-slope[0])*10)
             print "SCE : " + str(SCE)
+        """
         
     def clique_formation(self,generation,i):
         """ Compute clique formation score through log(linear) regression """
-        self.clique_graph(generation,i)
+        if generation%PLOT_CF==0 :
+            self.clique_graph(generation,i) # Plot
         
-        slope=stats.linregress(self.list_degrees_log_cf,self.list_meanclust_log)
+        slope=stats.linregress(self.list_degrees_log,self.list_meanclust_log)
         SCE=(slope[4]**2)*25
 
-        if nx.is_connected(self.graph) == False:
-            sanction = 100
-        else :
-            sanction=0
-        if slope[0] > 0 :
-            sanction_pente = 20
-        else : 
-            sanction_pente=0
-        
-        self.score_cf = abs(-3-slope[0])*10+SCE+sanction+sanction_pente
-        if generation%1000==0:
-            print ("\n" + str(self.id))
-            print ("id="+str(i))
-            print "liste des degrés :"
-            print list_degrees
-            print "list des count  : "
-            print list_count
-            print slope
-            print "erreur de pente : "+str(abs(-2.5-slope[0])*10)
-            print "SCE : " + str(SCE)
-        
+        if slope[0] > 0 : self.penalite += 20 
+        self.score_cf = abs(-3-slope[0])*10+SCE
         
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
         self.score_sw = (1-C)*L # A préciser !
-        
+
+    def reconnect(self,main,sub):
+        recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
+        new_edge = []
+        for i in recon:
+            new_edge.append((rd.sample(main,1)[0],rd.sample(sub,1)[0]))
+        return new_edge
+    
     def score_toolbox(self):
+
+        # Correction for unconnected_graph
+        if not nx.is_connected(self.graph):
+            subnods = nx.connected_components(self.graph)
+            map(lambda x:self.graph.add_edges_from(self.reconnect(subnods[0],x)) ,subnods[1:len(subnods)])
+
+        # Usefull dict
         self.deg_dict=self.graph.degree() #dictionnaire des degrés : clé = id noeuds ; valeur = degré
         self.clustl_dict = nx.clustering(self.graph) # key = id nodes, values = local clustering value
 
-        self.list_degrees = list(set(self.deg_dict.values()))
+        self.list_degrees = list(set(self.deg_dict.values())) # [unique dict values]
 
         # Build clustfk (clustering~k)
         self.clustfk = {} # {k:mean(local_clust_of_k_deg_nodes)}
@@ -435,10 +432,11 @@ class Individual():
         self.list_count = [values.count(x) for x in self.list_degrees]
         self.list_meanclust = self.clustfk.values()
 
-        # Delete all 0 (for log)
+        # Delete all 0 (for log) (deprecated)
+        """
         self.list_degrees_cf = copy.deepcopy(self.list_degrees)
         self.list_degrees_dg = copy.deepcopy(self.list_degrees)
-
+        
         indices_zeros = list(np.where(np.array(self.list_meanclust) == 0)[0])
         if len(indices_zeros) != 0:
             [self.list_meanclust.pop(i) for i in sorted(indices_zeros,reverse=True)]
@@ -450,12 +448,11 @@ class Individual():
             [self.list_degrees_cf.pop(i) for i in sorted(indices_zeros,reverse=True)]
             [self.list_degrees_dg.pop(i) for i in sorted(indices_zeros,reverse=True)]
             [self.list_count.pop(i) for i in sorted(indices_zeros,reverse=True)]
-        
+        """
         # Log
-        self.list_degrees_log_cf = [math.log10(x) for x in self.list_degrees_cf]
-        self.list_degrees_log_dg = [math.log10(x) for x in self.list_degrees_dg]
-        self.list_count_log = [math.log10(x) for x in self.list_count]
-        self.list_meanclust_log = [math.log10(x) for x in self.list_meanclust]
+        self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
+        self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
+        self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
         
     def calc_score(self,generation,i):
         """ Fitness function """
@@ -463,21 +460,15 @@ class Individual():
         self.score_sw = 0
         self.score_cf = 0
         self.penalite = 0
-        try:
-            start = time.time()
-            self.score_toolbox()
-            #print FAIL+str((time.time()-start)*100)+ENDC
-        except IndexError:
-            self.penalite += 200
-            self.go_on = False
+
+        self.score_toolbox()
             
         # Score functions
-        if self.go_on:
-            self.power_degree_law(generation,i)
-            self.small_world()
-            self.clique_formation(generation,i)
+        self.power_degree_law(generation,i)
+        self.small_world()
+        self.clique_formation(generation,i)
 
-        self.score = self.score_sw + self.score_pdl + self.score_cf + self.penalite
+        self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 
         return self.score
 
