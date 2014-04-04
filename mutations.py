@@ -71,26 +71,26 @@ def deletion(m,i,j):
     m[i,m.shape[0]-1] = 0
     for y in range(i,0,-1):
         m[y,j] = m[y-1,j]
-    m[i,0] = 0
+    m[0,j] = 0
     
     return symmetrize(m)
 
-
-m = np.random.randint(2,size=(6,6))
-print "random matrix\n",m
-m = symmetrize(m)
-print "symmetrized one\n",m
-mc = compress(m)
-print "compressed one\n",mc
-m = uncompress(mc)
-print "uncompressed one\n",m
-m = ins_in_compr(m,1,1)
-print "ins in comp\n",m
-m = del_in_compr(m,1)
-print "del in compr\n",m
-m = substitution(m,i=1,j=2)
-print "substitution\n",m
-m = insertion(m,i=2,j=3,ins_bit=1)
-print "insertion\n",m
-m = deletion(m,i=2,j=3)
-print "deletion\n",m
+if __name__=='__main__':
+    m = np.random.randint(2,size=(6,6))
+    print "random matrix\n",m
+    m = symmetrize(m)
+    print "symmetrized one\n",m
+    mc = compress(m)
+    print "compressed one\n",mc
+    m = uncompress(mc)
+    print "uncompressed one\n",m
+    m = ins_in_compr(m,1,1)
+    print "ins in comp\n",m
+    m = del_in_compr(m,1)
+    print "del in compr\n",m
+    m = substitution(m,i=1,j=2)
+    print "substitution\n",m
+    m = insertion(m,i=2,j=3,ins_bit=1)
+    print "insertion\n",m
+    m = deletion(m,i=2,j=3)
+    print "deletion\n",m
