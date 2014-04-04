@@ -3,54 +3,54 @@ AGGP
 
 #### Générateur de graphes biologiquement plausibles par algorithme génétique.
 
-* Compte github à créer
+* Installer Git
 
-Dans user settings, ssh keys : coller sa clef rsa, obtenue avec : 
-Si plusieurs ordis, plusieurs clefs à mettre ;)
+        apt-get install git
 
->ssh-keygen -t rsa -C "votremailidentifiant"
+* Créer un compte GitHub
 
->cat ~/.ssh/id_rsa.pub
-
-Me donner votre identifiant pour que je vous ajoute au projet. 
+    * Dans `Acount settings -> SSH keys` coller sa clef RSA, obtenue avec : 
 
 
+            ssh-keygen -t rsa -C <votremailidentifiant> 
+            cat ~/.ssh/id_rsa.pub
 
-* Pour récupérer le code : première fois :
+        Si plusieurs ordis, plusieurs clefs à mettre ;)
 
-dans un terminal avec git d'installer, sinon sous Ubuntu.debian : apt-get install git
-
->$ git clone https://github.com/Fritzip/AGGP.git
-
-
-ça crée le dossier avec les fichiers,
-
-vous pouvez maintenant tout modifier normalement,
-
-* Une fois le dossier créer avant de travailler, mettre à jour le dépot (pour prendre en compte les modifs des autres)
-
->$ git pull
-
-(il faut etre dans le dossier)
+    * Me donner votre identifiant pour que je vous ajoute au projet. 
 
 
-* Après chaque changement IMPORTANT : faire un commit :
 
->$ git commit -a -m 'un message explicite !'
+* Pour récupérer le code pour la première fois :
 
-* A la fin de la session de travail : 
+        git clone https://github.com/Fritzip/AGGP.git
 
->$ git push -u origin master
+    Ca crée le dossier AGGP avec les fichiers, vous pouvez maintenant tout modifier normalement.
 
-cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on en profite pas !
+* Une fois le dossier créer avant *chaque session de travail*, mettre à jour le dépot (pour prendre en compte les modifs des autres)
 
-* pour ajouter un fichier :
+        git pull
+
+    (il faut etre dans le dossier)
+
+
+* Après chaque changement IMPORTANT, faire un commit :
+
+        git commit -a -m 'un message explicite !'
+
+* A la fin de la session de travail (et si tout fonctionne bien !), envoyer sur le dépot:
+
+        git push -u origin master
+
+    Cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on en profite pas !
+
+* Pour ajouter un fichier:
  
->$ git add fichier
+        git add <fichier>
 
-* pour voir l'état de git : (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas )
+* Pour voir l'état de git (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas ) :
 
->$ git status
+        git status
 
 
 Un peu [plus d'aide là](http://doc.ubuntu-fr.org), si vous voulez :
