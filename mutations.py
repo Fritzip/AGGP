@@ -1,4 +1,5 @@
 import numpy as np
+#import random as rand
 
 #Compress the matrix, based on the fact it's symetrical, diagonal is null and matrix is binary 
 def compress(m):
@@ -51,23 +52,51 @@ def del_in_compr(m,del_index):
 def substitution(m,i,j):
     #i<dim-1 and j>=i
     m[i,j]=(m[i,j]+1)%2
+    return symmetrize(m)
 
 #insertion in the complete adjacency matrix
-def insertion(m,i,j):        
-    #i<dim-1 and j>=i
-    for x in range(dim-1,i,-1):
-       pass 
+def insertion(m,i,j,ins_bit):        
+    #i<dim-1 and dim-1>=j>=i
+    for x in range(m.shape[0]-1,j,-1):
+        m[i,x]=m[i,x-1]
+    for y in range(0,i):
+        m[y,j]=m[y+1,j]
+    m[i,j]=ins_bit
+    return symmetrize(m)
 
+#insertion in the complete adjacency matrix
+def deletion(m,i,j):        
+    #i<dim-1 and dim-1>=j>=i
+    for x in range(j,m.shape[0]-1):
+        m[i,x] = m[i,x+1]
+    m[i,m.shape[0]-1] = 0
+    for y in range(i,0,-1):
+        m[y,j] = m[y-1,j]
+    m[0,j] = 0
+    
+    return symmetrize(m)
 
-m = np.random.randint(2,size=(4,4))
-print "random matrix\n",m
-m = symmetrize(m)
-print "symmetrized one\n",m
-mc = compress(m)
-print "compressed one\n",mc
-m = uncompress(mc)
-print "uncompressed one\n",m
-m = ins_in_compr(m,1,1)
-print m
-m = del_in_compr(m,1)
-print m
+if __name__=='__main__':
+    m = np.random.randint(2,size=(6,6))
+    print "random matrix\n",m
+    m = symmetrize(m)
+    print "symmetrized one\n",m
+    mc = compress(m)
+    print "compressed one\n",mc
+    m = uncompress(mc)
+    print "uncompressed one\n",m
+    m = ins_in_compr(m,1,1)
+    print "ins in comp\n",m
+    m = del_in_compr(m,1)
+    print "del in compr\n",m
+    m = substitution(m,i=1,j=2)
+    print "substitution\n",m
+    m = insertion(m,i=2,j=3,ins_bit=1)
+    print "insertion\n",m
+    m = deletion(m,i=2,j=3)
+    print "deletion\n",m
+    for x in range(6):
+        i = rand.randint(0,5)
+        j = rand.randint(i,5)
+        m = substitution(m,i,j)
+    print m
