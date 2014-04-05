@@ -56,7 +56,7 @@ while True:
         L_RAND = nx.average_shortest_path_length(G_RAND)
         
         # Miscellaneous
-        NAMES = open(IN+"names.txt").read().splitlines()
+        NAMES = open(IN+"names").read().splitlines()
         ERROR = False
         EPS = 0.001 # log(x+EPS) to avoid log(0)
 
@@ -120,7 +120,7 @@ class Progressbar(threading.Thread):
            
     def run(self):
         while self.remaining > 0:
-            if not self.stopped :#1self.stopped():
+            if not self.stopped :
                 self.remaining = self.time_last-(time.time()-self.zero)
                 i = int(100-(100.*self.remaining/self.time_last))
                 update_progress("Generation "+str(self.gen),i)
@@ -298,18 +298,21 @@ class Population():
         self.pick_indiv = copy.deepcopy(self.selected_indiv)
         while len(self.pick_indiv) != 0:
             rand = rd.random()
-            if rand < RATE_CROSS and len(self.pick_indiv) > 1: # Crossing
-                #print OKGREEN+"croise"+ENDC
+
+            # Crossing
+            if rand < RATE_CROSS and len(self.pick_indiv) > 1: 
                 sample = rd.sample(self.pick_indiv,2)
                 map(self.trans_indiv ,sample)
                 self.cross(tuple(sample))
-            elif rand < RATE_MUT+RATE_CROSS: # Mutation
-                #print FAIL+"mute"+ENDC
+
+            # Mutation 
+            elif rand < RATE_MUT+RATE_CROSS:
                 sample = rd.sample(self.pick_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.mutation(sample)
-            else : # Nothing
-                #print WARNING+"nothing"+ENDC
+
+            # Nothing 
+            else :
                 sample = rd.sample(self.pick_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.next_gen.append(sample)
@@ -341,7 +344,7 @@ class Population():
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
-                    sif.write(str(i)+'\tpp\t'+str(j)+'\n')
+                    sif.write(str(i)+'\t'+str(j)+'\n')
         sif.close()
         
     def prints(self):
