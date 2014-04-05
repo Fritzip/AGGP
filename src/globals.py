@@ -27,7 +27,7 @@ while True:
 
         # Plot information box
         INFO_INDIV = False
-        INFO_BEST = True
+        INFO_BEST = False
         INFO_SELECT = False
         INFO_GEN = True
         INFO_FREQ = 1 # information frequency (every X generation)

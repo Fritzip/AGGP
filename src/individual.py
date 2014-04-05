@@ -91,6 +91,7 @@ class Individual():
         
     def clique_formation(self,generation,i):
         """ Compute clique formation score through log(linear) regression """
+        """
         if generation%PLOT_CF==0 :
             self.clique_graph(generation,i) # Plot
         
@@ -111,6 +112,13 @@ class Individual():
             #print "erreur de pente : "+str(abs(-9-slope[0])*10)
             #print "SCE : " + str(SCE)
             #print "score :",self.score_pdl
+        """
+        moysup = np.mean(self.clustsup) #sum(self.clustsup)/len(self.clustsup)
+        moyinf = np.mean(self.clustinf) #sum(self.clustinf)/len(self.clustinf)
+        print "moysup = ",(moysup, len(self.clustsup))
+        print "moyinf = ",(moyinf, len(self.clustinf))
+        
+        self.score_cf = 1-moysup+moyinf
         
     def small_world(self):
         """ Compute small world score of graph """
@@ -138,17 +146,22 @@ class Individual():
 
         self.list_degrees = list(set(self.deg_dict.values())) # [unique dict values]
 
+        """
         # Build clustfk (clustering~k)
         self.clustfk = {} # {k:mean(local_clust_of_k_deg_nodes)}
         for x in self.list_degrees : self.clustfk[x]=[]
         zipp = zip(self.deg_dict.values(), self.deg_dict.keys()) 
         map(lambda x: self.clustfk[x[0]].append(self.clustl_dict[x[1]]), zipp)
         for x in self.clustfk.keys() : self.clustfk[x]=np.mean(self.clustfk[x])
+        """
+        
+        self.clustsup = filter(lambda x: x>0.5, self.clustl_dict.values())
+        self.clustinf = filter(lambda x: x<=0.5, self.clustl_dict.values())
 
         # Lists
         values = sorted((self.deg_dict.values()))
         self.list_count = [values.count(x) for x in self.list_degrees]
-        self.list_meanclust = self.clustfk.values()
+        #self.list_meanclust = self.clustfk.values()
 
         # Delete all 0 (for log) (deprecated)
         """
@@ -170,20 +183,20 @@ class Individual():
         # Log
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
-        self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
+        #self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
         
     def calc_score(self,generation,i):
         """ Fitness function """
-        self.score_pdl = 1
-        self.score_sw = 1
+        self.score_pdl = 0
+        self.score_sw = 0
         self.score_cf = 1
         self.penalite = 0
 
         self.score_toolbox()
             
         # Score functions
-        self.power_degree_law(generation,i)
-        self.small_world()
+        #self.power_degree_law(generation,i)
+        #self.small_world()
         self.clique_formation(generation,i)
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
