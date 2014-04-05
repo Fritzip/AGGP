@@ -113,13 +113,13 @@ class Individual():
             #print "SCE : " + str(SCE)
             #print "score :",self.score_pdl
         """
-        moysup = np.mean(self.clustsup) #sum(self.clustsup)/len(self.clustsup)
-        moyinf = np.mean(self.clustinf) #sum(self.clustinf)/len(self.clustinf)
-        print "moysup = ",(moysup, len(self.clustsup))
-        print "moyinf = ",(moyinf, len(self.clustinf))
-        
-        self.score_cf = 1-moysup+moyinf
-        
+        moysup = np.mean(self.clustsup) if len(self.clustsup)>0 else 0#sum(self.clustsup)/len(self.clustsup)
+        moyinf = np.mean(self.clustinf) if len(self.clustsup)>0 else 0#sum(self.clustinf)/len(self.clustinf)
+        #print "moysup = ",(moysup, len(self.clustsup))
+        #print "moyinf = ",(moyinf, len(self.clustinf))
+        #if len(self.clustsup)<int(0.2*NB_NODES):self.penalite += 20
+        self.score_cf = (1-moysup)+moyinf+ abs(0.1*NB_NODES-len(self.clustsup))*0.1
+                
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
@@ -154,9 +154,9 @@ class Individual():
         map(lambda x: self.clustfk[x[0]].append(self.clustl_dict[x[1]]), zipp)
         for x in self.clustfk.keys() : self.clustfk[x]=np.mean(self.clustfk[x])
         """
-        
-        self.clustsup = filter(lambda x: x>0.5, self.clustl_dict.values())
-        self.clustinf = filter(lambda x: x<=0.5, self.clustl_dict.values())
+        #a = np.mean(self.clustl_dict.values)
+        self.clustsup = filter(lambda x: x>0.45, self.clustl_dict.values())
+        self.clustinf = filter(lambda x: x<=0.45, self.clustl_dict.values())
 
         # Lists
         values = sorted((self.deg_dict.values()))
@@ -187,18 +187,18 @@ class Individual():
         
     def calc_score(self,generation,i):
         """ Fitness function """
-        self.score_pdl = 0
-        self.score_sw = 0
+        self.score_pdl = 1
+        self.score_sw = 1
         self.score_cf = 1
         self.penalite = 0
 
         self.score_toolbox()
             
         # Score functions
-        #self.power_degree_law(generation,i)
-        #self.small_world()
+        self.power_degree_law(generation,i)
+        self.small_world()
         self.clique_formation(generation,i)
 
-        self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
+        self.score = PDL*self.score_pdl + 0.5*SW*self.score_sw + CF*self.score_cf + self.penalite
 
         return self.score
