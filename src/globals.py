@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import networkx as nx
-import sys
+import sys, os
 
 ####################################################################
 #			Global Parameters
@@ -13,6 +13,10 @@ while True:
         IMG = "../img/"
         IN = "../in/"
         OUT = "../out/"
+        
+        for PATH in [IMG,OUT]:
+            if not os.path.exists(PATH):
+                os.makedirs(PATH)
 
         # Plot png in /img
         PLOT_PDL = 1001 # plot degree graph every X generation
