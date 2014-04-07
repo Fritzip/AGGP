@@ -83,10 +83,28 @@ class Population():
         self.fpdl.close()
         self.fsw.close()
         self.fcf.close()
-
-        self.best_ever_indiv[0].graphizer("Best Indiv",100)
-        self.save2sif(self.best_ever_indiv[0].graph_to_adj_mat())
+        
         print "\nDone in %.3f sec"%(time.time()-start_algo)
+        
+        while True:
+            n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}]= ".format(NB_INDIV))
+            if n == "":
+                n = 1
+                break
+            try:
+                n = int(n)
+                break
+            except:
+                print "int demandé"
+                pass
+        for i in range(n):
+            self.print_info_indiv(self.selected_indiv[i])
+        for i in range(n):
+            self.selected_indiv[i].graphizer("Best",(i+1)*100./n)
+            self.save2sif(self.selected_indiv[i])
+        print "\n"
+        
+
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         
             
@@ -102,14 +120,8 @@ class Population():
             
             # PRINT
             if INFO_INDIV and self.generation%INFO_FREQ==0:
-                indi = self.indiv[i]
-                print "+{}+".format('-'*30)
-                print "|{}|".format(indi.id.center(30))
-                print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl,"Power Degree Law")
-                print "| {0:7.2f} | {1:<18} |".format(indi.score_sw,"Small World")
-                print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
-                print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
-                print "+{}+\n".format('-'*30)
+                self.print_info_indiv(self.indiv[i])
+            
 
     def roulette_wheel_selec(self):
         """ Roulette wheel selection """
@@ -219,8 +231,9 @@ class Population():
         self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\n')
 
 
-    def save2sif(self,m):
-        sif = open(OUT+'cyto.sif','w')
+    def save2sif(self,indiv):
+        m = indiv.graph_to_adj_mat()
+        sif = open(OUT+indiv.id+'.sif','w')
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
@@ -275,3 +288,13 @@ class Population():
                 for indi in self.indiv :
                     i += 100./len(self.indiv)
                     indi.graphizer("Generation {}".format(self.generation),i)
+
+    def print_info_indiv(self,indi):
+        #indi = self.indiv[i]
+        print "+{}+".format('-'*30)
+        print "|{}|".format(indi.id.center(30))
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl,"Power Degree Law")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_sw,"Small World")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
+        print "+{}+\n".format('-'*30)

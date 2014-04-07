@@ -27,15 +27,15 @@ while True:
         # Parameters of algogen
         NB_GEN = 1000 # genetic algo's iteration number
         NB_NODES = 60
-        NB_INDIV = 20
+        NB_INDIV = 30
 
         # Plot information box
         INFO_INDIV = False
-        INFO_BEST = False
+        INFO_BEST = True
         INFO_SELECT = False
         INFO_GEN = True
         INFO_FREQ = 1 # information frequency (every X generation)
-        PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 else False
+        PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 else True
 
         # Rates
         RATE_ELITISM = 0.2 
