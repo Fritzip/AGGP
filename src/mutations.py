@@ -1,4 +1,5 @@
 import numpy as np
+#import random as rand
 
 #Compress the matrix, based on the fact it's symetrical, diagonal is null and matrix is binary 
 def compress(m):
@@ -94,3 +95,9 @@ if __name__=='__main__':
     print "insertion\n",m
     m = deletion(m,i=2,j=3)
     print "deletion\n",m
+    for x in range(6):
+        i = rand.randint(0,5)
+        j = rand.randint(i,5)
+        m = substitution(m,i,j)
+    print m
+
