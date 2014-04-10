@@ -58,6 +58,8 @@ class Population():
                 if PROGRESS_GEN and self.generation != 0:
                     bar = Progressbar(self.generation,time_laps)
                     bar.start()
+                elif INFO_FREQ > 1:
+                    print "Generation {}".format(self.generation)
                 start = time.time()
                 self.evaluation()
                 self.save() # in files
@@ -69,6 +71,7 @@ class Population():
                 self.next_gen = []
                 
                 self.prints()
+                self.plots()
                 
                 self.generation += 1
 
@@ -233,7 +236,7 @@ class Population():
 
     def save2sif(self,indiv):
         m = indiv.graph_to_adj_mat()
-        sif = open(OUT+indiv.id+'.sif','w')
+        sif = open(OUT+indiv.id+'.csv','w')
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
@@ -283,12 +286,6 @@ class Population():
             print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
             print "╚{0}╝".format('═'*39)
             
-            if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
-                i=1
-                for indi in self.indiv :
-                    i += 100./len(self.indiv)
-                    indi.graphizer("Generation {}".format(self.generation),i)
-
     def print_info_indiv(self,indi):
         #indi = self.indiv[i]
         print "+{}+".format('-'*30)
@@ -298,3 +295,20 @@ class Population():
         print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
         print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
         print "+{}+\n".format('-'*30)
+
+    def plots(self):
+        if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
+            i=1
+            for indi in self.indiv :
+                i += 100./len(self.indiv)
+                indi.graphizer("Indiv Generation {}".format(self.generation),i)
+            print ""
+            
+        if self.generation%PLOT_PDL==0:
+            i=1
+            for indi in self.indiv :
+                i += 100./len(self.indiv)
+                indi.degree_graph("PDL Graphs Generation {}".format(self.generation),i)
+            print ""
+        
+

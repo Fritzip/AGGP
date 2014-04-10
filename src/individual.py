@@ -42,19 +42,20 @@ class Individual():
     def graphizer(self, label, i):
         update_progress("Plotting {}".format(label),i)
         nx.draw(self.graph)
-        b=plt.savefig(IMG+str(label)+"_"+str(self.id)+".png") # save as png
+        b=plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
 
-    def degree_graph(self,generation,i):
-        plt.plot(self.list_degrees,self.list_count_log)
-        plt.savefig(IMG+"DG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
+    def degree_graph(self,label,i):
+        update_progress("Plotting {}".format(label),i)
+        plt.plot(self.list_degrees_log,self.list_count_log)
+        plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
-            
+    """        
     def clique_graph(self,generation,i):
         plt.plot(self.list_degrees,self.list_meanclust_log)
         plt.savefig(IMG+"CG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-                
+    """          
     def apply_mutations(self):
         m = self.graph_to_adj_mat()
         for x in range(int(0.3*NB_NODES)):
@@ -65,15 +66,15 @@ class Individual():
 
     def power_degree_law(self,generation,i):
         """ power degree law """
-        if generation%PLOT_PDL==0 :
-            self.degree_graph(generation,i) # Plot
+        #if generation%PLOT_PDL==0 :
+        #    self.degree_graph(generation,i) # Plot
         
-        slope=stats.linregress(self.list_degrees,self.list_count_log)
+        slope=stats.linregress(self.list_degrees_log,self.list_count_log)
         SCE=(slope[4]**2)*NB_NODES ## 25 ? pour NB_NODES ?
 
         if slope[0] > 0 : self.penalite += 20
             
-        self.score_pdl = abs(-1.5-slope[0])*10+SCE
+        self.score_pdl = abs(-2.5-slope[0])*10+SCE
 
         
         if generation%1001==0:
@@ -92,8 +93,8 @@ class Individual():
     def clique_formation(self,generation,i):
         """ Compute clique formation score through log(linear) regression """
         """
-        if generation%PLOT_CF==0 :
-            self.clique_graph(generation,i) # Plot
+        #if generation%PLOT_CF==0 :
+        #    self.clique_graph(generation,i) # Plot
         
         slope=stats.linregress(self.list_degrees,self.list_meanclust_log)
         SCE=(slope[4]**2)*NB_NODES
@@ -101,17 +102,6 @@ class Individual():
         if slope[0] > 0 : self.penalite += 20 
         self.score_cf = abs(-2-slope[0])*10+SCE
         
-        if generation%1001==0:
-            #print ("\n" + str(self.id))
-            #print ("id="+str(i))
-            print "liste des degrés :"
-            print self.list_degrees
-            print "list des meanclust  : "
-            print self.list_meanclust
-            #print slope
-            #print "erreur de pente : "+str(abs(-9-slope[0])*10)
-            #print "SCE : " + str(SCE)
-            #print "score :",self.score_pdl
         """
         moysup = np.mean(self.clustsup) if len(self.clustsup)>0 else 0#sum(self.clustsup)/len(self.clustsup)
         moyinf = np.mean(self.clustinf) if len(self.clustsup)>0 else 0#sum(self.clustinf)/len(self.clustinf)
@@ -124,7 +114,8 @@ class Individual():
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (1-C)*L # A préciser !
+        
+        self.score_sw = L # A préciser !
 
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
@@ -163,23 +154,6 @@ class Individual():
         self.list_count = [values.count(x) for x in self.list_degrees]
         #self.list_meanclust = self.clustfk.values()
 
-        # Delete all 0 (for log) (deprecated)
-        """
-        self.list_degrees_cf = copy.deepcopy(self.list_degrees)
-        self.list_degrees_dg = copy.deepcopy(self.list_degrees)
-        
-        indices_zeros = list(np.where(np.array(self.list_meanclust) == 0)[0])
-        if len(indices_zeros) != 0:
-            [self.list_meanclust.pop(i) for i in sorted(indices_zeros,reverse=True)]
-            [self.list_degrees_cf.pop(i) for i in sorted(indices_zeros,reverse=True)] 
-
-        indices_zeros = list(np.where(np.array(self.list_degrees) == 0)[0])
-        if len(indices_zeros) != 0:
-            [self.list_meanclust.pop(i) for i in sorted(indices_zeros,reverse=True)]
-            [self.list_degrees_cf.pop(i) for i in sorted(indices_zeros,reverse=True)]
-            [self.list_degrees_dg.pop(i) for i in sorted(indices_zeros,reverse=True)]
-            [self.list_count.pop(i) for i in sorted(indices_zeros,reverse=True)]
-        """
         # Log
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
@@ -199,6 +173,6 @@ class Individual():
         self.small_world()
         self.clique_formation(generation,i)
 
-        self.score = PDL*self.score_pdl + 0.5*SW*self.score_sw + CF*self.score_cf + self.penalite
+        self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 
         return self.score
