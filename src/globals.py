@@ -19,7 +19,7 @@ while True:
                 os.makedirs(PATH)
 
         # Plot png in /img
-        PLOT_PDL = 1001 # plot degree graph every X generation
+        PLOT_PDL = 10 # plot degree graph every X generation
         PLOT_CF = 1001 # plot clique formation graph every X generation
         PLOT_GR = 1001 # plot graph every X generation
         PLOT_GEN_ZERO = False # plot initials individuals ?
@@ -34,11 +34,11 @@ while True:
         INFO_BEST = True
         INFO_SELECT = False
         INFO_GEN = True
-        INFO_FREQ = 1 # information frequency (every X generation)
-        PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 else True
+        INFO_FREQ = 10 # information frequency (every X generation)
+        PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 else False
 
         # Rates
-        RATE_ELITISM = 0.2 
+        RATE_ELITISM = 0.5 
         RATE_TOURNAMENT = 1-RATE_ELITISM
         RATE_CROSS = 0.6
         RATE_MUT = 0.3
@@ -51,8 +51,9 @@ while True:
         # Random Reference
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
         C_RAND = nx.average_clustering(G_RAND)
-        L_RAND = nx.average_shortest_path_length(G_RAND)
-        
+        #L_RAND = nx.average_shortest_path_length(G_RAND)
+        L_RAND=1
+
         # Miscellaneous
         NAMES = open(IN+"names").read().splitlines()
         ERROR = False

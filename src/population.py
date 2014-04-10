@@ -34,12 +34,17 @@ class Population():
         self.size_indiv = size_indiv
         self.nb_best = int(self.size_pop*RATE_ELITISM)+1
         
+        mean_shortest_path=[]
+        
         for i in range(self.size_pop):
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
             self.score_pdl.append(0)
             self.score_sw.append(0)
             self.score_cf.append(0)
+            mean_shortest_path.append((self.indiv[i]).mean_short_path())
+            L_RAND=sum(mean_shortest_path)/len(mean_shortest_path)
+        print L_RAND
         
     
     def genetic_algo(self):

@@ -45,8 +45,11 @@ class Individual():
         b=plt.savefig(IMG+str(label)+"_"+str(self.id)+".png") # save as png
         plt.clf()
 
+    def mean_short_path(self):
+        return nx.average_shortest_path_length(self.graph)
+
     def degree_graph(self,generation,i):
-        plt.plot(self.list_degrees,self.list_count_log)
+        plt.plot(self.list_degrees_log,self.list_count_log)
         plt.savefig(IMG+"DG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
             
@@ -63,17 +66,19 @@ class Individual():
             m = substitution(m,i,j)
         return m
 
+
+
     def power_degree_law(self,generation,i):
         """ power degree law """
         if generation%PLOT_PDL==0 :
             self.degree_graph(generation,i) # Plot
         
-        slope=stats.linregress(self.list_degrees,self.list_count_log)
-        SCE=(slope[4]**2)*NB_NODES ## 25 ? pour NB_NODES ?
+        slope=stats.linregress(self.list_degrees_log,self.list_count_log)
+        SCE=(slope[4]**2)*NB_NODES
 
         if slope[0] > 0 : self.penalite += 20
             
-        self.score_pdl = abs(-1.5-slope[0])*10+SCE
+        self.score_pdl = abs(-2.5-slope[0])*10+SCE*10
 
         
         if generation%1001==0:
@@ -120,6 +125,9 @@ class Individual():
         #if len(self.clustsup)<int(0.2*NB_NODES):self.penalite += 20
         self.score_cf = (1-moysup)+moyinf+ abs(0.1*NB_NODES-len(self.clustsup))*0.1
                 
+
+
+
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
@@ -196,8 +204,8 @@ class Individual():
             
         # Score functions
         self.power_degree_law(generation,i)
-        self.small_world()
-        self.clique_formation(generation,i)
+        #self.small_world()
+        #self.clique_formation(generation,i)
 
         self.score = PDL*self.score_pdl + 0.5*SW*self.score_sw + CF*self.score_cf + self.penalite
 
