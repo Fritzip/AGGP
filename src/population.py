@@ -11,6 +11,7 @@ from progressbar import *
 class Population():
     """ Population including all the individuals """
     def __init__(self,size_pop=NB_INDIV,size_indiv=NB_NODES):
+        print "Initialization ..." 
         self.indiv = []
         self.score = []
         self.score_pdl = []
@@ -45,6 +46,8 @@ class Population():
     def genetic_algo(self):
         start_algo = time.time()
         time_laps = 0
+        sys.stdout.write('{0:<25}'.format("Generation 1"))
+        sys.stdout.flush()
 
         # Open all files
         self.fscore = open(OUT+'evo_score','w')
@@ -69,7 +72,11 @@ class Population():
                 self.indiv = []
                 self.indiv = copy.deepcopy(self.next_gen)
                 self.next_gen = []
-                
+
+                if PROGRESS_GEN and self.generation != 0:
+                    bar.stop()
+                    update_progress("Generation "+str(self.generation),100)
+                    
                 self.prints()
                 self.plots()
                 

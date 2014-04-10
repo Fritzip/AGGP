@@ -7,69 +7,62 @@ import sys, os
 ####################################################################
 #			Global Parameters
 ####################################################################
-while True:
-    try:
-        # Paths
-        IMG = "../img/"
-        IN = "../in/"
-        OUT = "../out/"
+# Paths
+IMG = "../img/"
+IN = "../in/"
+OUT = "../out/"
+
+for PATH in [IMG,OUT]:
+    if not os.path.exists(PATH):
+        os.makedirs(PATH)
         
-        for PATH in [IMG,OUT]:
-            if not os.path.exists(PATH):
-                os.makedirs(PATH)
+# Plot png in /img
+PLOT_PDL = 1001 # plot degree graph every X generation
+#PLOT_CF = 1001 # plot clique formation graph every X generation
+PLOT_GR = 1001 # plot graph every X generation
+PLOT_GEN_ZERO = False # plot initials individuals ?
 
-        # Plot png in /img
-        PLOT_PDL = 8 # plot degree graph every X generation
-        #PLOT_CF = 1001 # plot clique formation graph every X generation
-        PLOT_GR = 16 # plot graph every X generation
-        PLOT_GEN_ZERO = True # plot initials individuals ?
+# Parameters of algogen
+NB_GEN = 1000 # genetic algo's iteration number
+NB_NODES = 60
+NB_INDIV = 30
 
-        # Parameters of algogen
-        NB_GEN = 1000 # genetic algo's iteration number
-        NB_NODES = 60
-        NB_INDIV = 30
+# Plot information box
+INFO_INDIV = False
+INFO_BEST = True
+INFO_SELECT = False
+INFO_GEN = True
+INFO_FREQ = 10 # information frequency (every X generation)
+PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_GEN or PLOT_GR < NB_GEN else True
 
-        # Plot information box
-        INFO_INDIV = False
-        INFO_BEST = True
-        INFO_SELECT = False
-        INFO_GEN = True
-        INFO_FREQ = 4 # information frequency (every X generation)
-        PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_GEN or PLOT_GR < NB_GEN else True
+# Rates
+RATE_ELITISM = 0.2 
+RATE_TOURNAMENT = 1-RATE_ELITISM
+RATE_CROSS = 0.6
+RATE_MUT = 0.3
 
-        # Rates
-        RATE_ELITISM = 0.2 
-        RATE_TOURNAMENT = 1-RATE_ELITISM
-        RATE_CROSS = 0.6
-        RATE_MUT = 0.3
+# Scores Rates
+PDL = 1
+SW = 1
+CF = 1
 
-        # Scores Rates
-        PDL = 1
-        SW = 1
-        CF = 1
-        
-        # Random Reference
-        #G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-        #C_RAND = nx.average_clustering(G_RAND)
-        #L_RAND = nx.average_shortest_path_length(G_RAND)
-        
-        # Miscellaneous
-        NAMES = open(IN+"names").read().splitlines()
-        ERROR = False
-        EPS = 0.001 # log(x+EPS) to avoid log(0)
+# Random Reference
+#G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+#C_RAND = nx.average_clustering(G_RAND)
+#L_RAND = nx.average_shortest_path_length(G_RAND)
 
-        # Colors
-        HEADER = '\033[1m' # bold
-        OKBLUE = '\033[94m' # blue
-        OKGREEN = '\033[92m' # green
-        WARNING = '\033[93m' # yellow
-        FAIL = '\033[91m' # red
-        ENDC = '\033[0m' # back to normal
+# Miscellaneous
+NAMES = open(IN+"names").read().splitlines()
+ERROR = False
+EPS = 0.001 # log(x+EPS) to avoid log(0)
 
-        break
-    except:
-        print "Initialization Error"
-        pass
+# Colors
+HEADER = '\033[1m' # bold
+OKBLUE = '\033[94m' # blue
+OKGREEN = '\033[92m' # green
+WARNING = '\033[93m' # yellow
+FAIL = '\033[91m' # red
+ENDC = '\033[0m' # back to normal
 
 
 ####################################################################
