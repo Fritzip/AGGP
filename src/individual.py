@@ -45,8 +45,11 @@ class Individual():
         b=plt.savefig(IMG+str(label)+"_"+str(self.id)+".png") # save as png
         plt.clf()
 
-    def mean_short_path(self):
+    def average_short_path(self):
         return nx.average_shortest_path_length(self.graph)
+
+    def average_coeff_clustering(self):
+        return nx.average_clustering(self.graph) 
 
     def degree_graph(self,generation,i):
         plt.plot(self.list_degrees_log,self.list_count_log)
@@ -132,7 +135,9 @@ class Individual():
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        self.score_sw = (1-C)*L # A préciser !
+        S=(C/C_RAND)/(L/L_RAND)   
+        #self.score_sw = (1-C)*L # A préciser !
+        self.score_sw=abs(1-S)*20
 
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
@@ -204,9 +209,10 @@ class Individual():
             
         # Score functions
         self.power_degree_law(generation,i)
-        #self.small_world()
+        self.small_world()
         #self.clique_formation(generation,i)
 
-        self.score = PDL*self.score_pdl + 0.5*SW*self.score_sw + CF*self.score_cf + self.penalite
+        self.score = PDL*self.score_pdl+ self.penalite + SW*self.score_sw
+        # + 0.5* + CF*self.score_cf 
 
         return self.score

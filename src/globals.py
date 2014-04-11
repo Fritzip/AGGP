@@ -50,8 +50,7 @@ while True:
         
         # Random Reference
         G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-        C_RAND = nx.average_clustering(G_RAND)
-        #L_RAND = nx.average_shortest_path_length(G_RAND)
+        C_RAND = 1
         L_RAND=1
 
         # Miscellaneous
