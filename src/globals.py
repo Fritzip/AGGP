@@ -17,9 +17,9 @@ for PATH in [IMG,OUT]:
         os.makedirs(PATH)
         
 # Plot png in /img
-PLOT_PDL = 1 # plot degree graph every X generation
+PLOT_PDL = 5 # plot degree graph every X generation
 #PLOT_CF = 1001 # plot clique formation graph every X generation
-PLOT_GR = 1001 # plot graph every X generation
+PLOT_GR = 4 # plot graph every X generation
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Parameters of algogen
@@ -32,14 +32,19 @@ INFO_INDIV = False
 INFO_BEST = True
 INFO_SELECT = False
 INFO_GEN = True
-INFO_FREQ = 10 # information frequency (every X generation)
+INFO_FREQ = 5 # information frequency (every X generation)
 PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_GEN or PLOT_GR < NB_GEN else True
 
 # Rates
 RATE_ELITISM = 0.2 
 RATE_TOURNAMENT = 1-RATE_ELITISM
 RATE_CROSS = 0.6
-RATE_MUT = 0.3
+# Mutation rates
+RATE_SUB = 0.1
+RATE_LOCAL_DEL = 0.05
+RATE_LOCAL_INS = 0.05
+RATE_GLOBAL_INS = 0.01
+RATE_GLOBAL_DEL = 0.01
 
 # Scores Rates
 PDL = 1

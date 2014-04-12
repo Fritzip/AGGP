@@ -64,16 +64,14 @@ class Population():
                     bar = Progressbar(self.generation,time_laps)
                     bar.start()
                 elif INFO_FREQ > 1:
-                    print "Generation {}".format(self.generation)
+                    sys.stdout.write('\r{0:<25}'.format("Generation {0}/{1}".format(self.generation,NB_GEN)))
+                    sys.stdout.flush()
                 start = time.time()
                 self.evaluation()
                 self.save() # in files
                 self.selection()
                 self.crossormut()
                 time_laps = time.time()-start
-                self.indiv = []
-                self.indiv = copy.deepcopy(self.next_gen)
-                self.next_gen = []
 
                 if PROGRESS_GEN and self.generation != 0:
                     bar.stop()
@@ -81,6 +79,10 @@ class Population():
                     
                 self.prints()
                 self.plots()
+
+                self.indiv = []
+                self.indiv = copy.deepcopy(self.next_gen)
+                self.next_gen = []
                 
                 self.generation += 1
 
@@ -207,27 +209,49 @@ class Population():
             if rand < RATE_CROSS and len(self.pick_indiv) > 1: 
                 sample = rd.sample(self.pick_indiv,2)
                 map(self.trans_indiv ,sample)
-                self.cross(tuple(sample))
+                self.cross(tuple(sample),mutations=True)
 
-            # Mutation 
-            elif rand < RATE_MUT+RATE_CROSS:
+            #Mutations
+            else :
                 sample = rd.sample(self.pick_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.mutation(sample)
 
-            # Nothing 
-            else :
-                sample = rd.sample(self.pick_indiv,1)[0]
-                self.trans_indiv(sample)
-                self.next_gen.append(sample)
-                    
+
+# Le modèle de mutation a changé. Tous les individus subissent des mutations,
+# appliquées aléatoirement avec les probabilités choisies. Ceci a pour but de répartir
+# la variabilité dans la population et de ne pas fausser notre image des taux
+# en utilisant un produit de probabilités (RATE_MUT * 0.3 dans la version précédente)
+
+# Moins d'étapes => Plus de contrôle
+
+# Du coup, p'tite modif de la fonction cross pour qu'elle inclue des mutations.
+
+
+#             # Mutation 
+#             elif rand < RATE_MUT+RATE_CROSS:
+#                 sample = rd.sample(self.pick_indiv,1)[0]
+#                 self.trans_indiv(sample)
+#                 self.mutation(sample)
+
+#             # Nothing 
+#             else :
+#                 sample = rd.sample(self.pick_indiv,1)[0]
+#                 self.trans_indiv(sample)
+#                 self.next_gen.append(sample)
+                   
     def trans_indiv(self,x):
         self.pick_indiv.remove(x)
         
-    def cross(self,(ind1,ind2)):
+    def cross(self,(ind1,ind2),mutations=True):
         """ Simulate the reproduction beetween two individuals : ~70% of variability """
-        A = ind1.graph_to_adj_mat()
-        B = ind2.graph_to_adj_mat()
+        if mutations :
+            A = ind1.apply_mutations()
+            B = ind2.apply_mutations()
+        else :
+            A = ind1.graph_to_adj_mat()
+            B = ind2.graph_to_adj_mat()
+
         X = np.array(nx.adjacency_matrix(nx.fast_gnp_random_graph(self.size_indiv,0.2))).astype(int)
         self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=rd.choice(NAMES)))
         self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=rd.choice(NAMES)))
@@ -245,11 +269,11 @@ class Population():
 
     def save2sif(self,indiv):
         m = indiv.graph_to_adj_mat()
-        sif = open(OUT+indiv.id+'.csv','w')
+        sif = open(OUT+indiv.id+'.sif','w')
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
-                    sif.write(str(i)+'\t'+str(j)+'\n')
+                    sif.write(str(i)+'\tpp\t'+str(j)+'\n')
         sif.close()
         
     def prints(self):

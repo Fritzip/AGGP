@@ -1,6 +1,8 @@
 import numpy as np
 #import random as rand
 
+#====================== Internal functions =============================
+
 #Compress the matrix, based on the fact it's symetrical, diagonal is null and matrix is binary 
 def compress(m):
     dim=m.shape[0]
@@ -39,13 +41,17 @@ def symmetrize(m):
     m = tri+np.transpose(tri)
     return(m)
 
+#======================= Usable functions ========================
+
 #insertion in the compressed matrix
 def ins_in_compr(m,ins_index,ins_bit):
+    #index < sum(range(dim))
     mc = compress(m)
     return uncompress(mc[:ins_index]+[ins_bit]+mc[ins_index:-1])
 
 #deletion in the compressed matrix
 def del_in_compr(m,del_index):
+    #index < sum(range(dim))
     mc = compress(m)
     return uncompress(mc[:del_index]+mc[del_index+1:]+[0])
 
@@ -76,6 +82,8 @@ def deletion(m,i,j):
     
     return symmetrize(m)
 
+#============================== Tests ================
+
 if __name__=='__main__':
     m = np.random.randint(2,size=(6,6))
     print "random matrix\n",m
@@ -95,8 +103,3 @@ if __name__=='__main__':
     print "insertion\n",m
     m = deletion(m,i=2,j=3)
     print "deletion\n",m
-    for x in range(6):
-        i = rand.randint(0,5)
-        j = rand.randint(i,5)
-        m = substitution(m,i,j)
-    print m
