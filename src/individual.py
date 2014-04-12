@@ -1,5 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
+# Dependancies : networkx, numpy, graphviz, matplotlib
 
 import matplotlib.pyplot as plt
 import numpy as np

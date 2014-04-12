@@ -1,5 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
+# Dependancies : networkx, numpy, graphviz, matplotlib
 
 from population import *
 

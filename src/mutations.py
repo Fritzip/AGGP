@@ -1,5 +1,8 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+# Dependancies : networkx, numpy, graphviz, matplotlib
+
 import numpy as np
-#import random as rand
 
 #====================== Internal functions =============================
 
