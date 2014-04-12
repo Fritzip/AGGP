@@ -106,24 +106,29 @@ class Population():
         self.fcf.close()
         
         print "\nDone in %.3f sec"%(time.time()-start_algo)
-        
-        while True:
-            n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}]= ".format(NB_INDIV))
-            if n == "":
-                n = 1
-                break
-            try:
-                n = int(n)
-                break
-            except:
-                print "int demandé"
-                pass
-        for i in range(n):
-            self.print_info_indiv(self.selected_indiv[i])
-        for i in range(n):
-            self.selected_indiv[i].graphizer("Best",(i+1)*100./n)
-            self.save2sif(self.selected_indiv[i])
-        print "\n"
+
+        if self.generation > 1:
+            while True:
+                try:
+                    n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}] = ".format(self.nb_best))
+                    if n == "":
+                        n = 1
+                    elif n > self.nb_best:
+                        raise IOError
+                    break 
+                except IOError:
+                    print FAIL+"You choose poorly"+ENDC
+                    pass
+                except:
+                    print FAIL+"Int asked"+ENDC
+                    pass
+            
+            for i in range(n):
+                self.print_info_indiv(self.best_ever_indiv[i])
+            for i in range(n):
+                self.best_ever_indiv[i].graphizer("Best",(i+1)*100./n)
+                self.save2sif(self.best_ever_indiv[i])
+            print "\n"
         
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…

@@ -18,13 +18,13 @@ for PATH in [IMG,OUT]:
         os.makedirs(PATH)
         
 # Plot png in /img
-PLOT_PDL = 5 # plot degree graph every X generation
+PLOT_PDL = 1001 # plot degree graph every X generation
 #PLOT_CF = 1001 # plot clique formation graph every X generation
-PLOT_GR = 4 # plot graph every X generation
+PLOT_GR = 1001 # plot graph every X generation
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Parameters of algogen
-NB_GEN = 1000 # genetic algo's iteration number
+NB_GEN = 100 # genetic algo's iteration number
 NB_NODES = 60
 NB_INDIV = 30
 
