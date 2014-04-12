@@ -25,9 +25,12 @@ class Individual():
         self.score = 0
         self.penalite = 0
         self.go_on = True
-        
+
+        self.list_degrees=[]
+        self.list_count=[]
         self.list_degrees_log=[]
         self.list_count_log=[]
+        
         try:
             self.graph = self.adj_mat_to_graph(mat)
         except:
@@ -73,9 +76,7 @@ class Individual():
 
     def power_degree_law(self,generation,i):
         """ power degree law """
-        #if generation%PLOT_PDL==0 :
-        #    self.degree_graph(generation,i) # Plot
-        
+
         slope=stats.linregress(self.list_degrees_log,self.list_count_log)
         
         SCE=(slope[4]**2)*NB_NODES
@@ -166,7 +167,7 @@ class Individual():
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
         #self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
-        
+
     def calc_score(self,generation,i):
         """ Fitness function """
         self.score_pdl = 1

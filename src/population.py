@@ -70,16 +70,14 @@ class Population():
                     bar = Progressbar(self.generation,time_laps)
                     bar.start()
                 elif INFO_FREQ > 1:
-                    print "Generation {}".format(self.generation)
+                    sys.stdout.write('\r{0:<25}'.format("Generation {0}/{1}".format(self.generation,NB_GEN)))
+                    sys.stdout.flush()
                 start = time.time()
                 self.evaluation()
                 self.save() # in files
                 self.selection()
                 self.crossormut()
                 time_laps = time.time()-start
-                self.indiv = []
-                self.indiv = copy.deepcopy(self.next_gen)
-                self.next_gen = []
 
                 if PROGRESS_GEN and self.generation != 0:
                     bar.stop()
@@ -87,6 +85,10 @@ class Population():
                     
                 self.prints()
                 self.plots()
+
+                self.indiv = []
+                self.indiv = copy.deepcopy(self.next_gen)
+                self.next_gen = []
                 
                 self.generation += 1
 
