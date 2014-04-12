@@ -215,27 +215,49 @@ class Population():
             if rand < RATE_CROSS and len(self.pick_indiv) > 1: 
                 sample = rd.sample(self.pick_indiv,2)
                 map(self.trans_indiv ,sample)
-                self.cross(tuple(sample))
+                self.cross(tuple(sample),mutations=True)
 
-            # Mutation 
-            elif rand < RATE_MUT+RATE_CROSS:
+            #Mutations
+            else :
                 sample = rd.sample(self.pick_indiv,1)[0]
                 self.trans_indiv(sample)
                 self.mutation(sample)
 
-            # Nothing 
-            else :
-                sample = rd.sample(self.pick_indiv,1)[0]
-                self.trans_indiv(sample)
-                self.next_gen.append(sample)
-                    
+
+# Le modèle de mutation a changé. Tous les individus subissent des mutations,
+# appliquées aléatoirement avec les probabilités choisies. Ceci a pour but de répartir
+# la variabilité dans la population et de ne pas fausser notre image des taux
+# en utilisant un produit de probabilités (RATE_MUT * 0.3 dans la version précédente)
+
+# Moins d'étapes => Plus de contrôle
+
+# Du coup, p'tite modif de la fonction cross pour qu'elle inclue des mutations.
+
+
+#             # Mutation 
+#             elif rand < RATE_MUT+RATE_CROSS:
+#                 sample = rd.sample(self.pick_indiv,1)[0]
+#                 self.trans_indiv(sample)
+#                 self.mutation(sample)
+
+#             # Nothing 
+#             else :
+#                 sample = rd.sample(self.pick_indiv,1)[0]
+#                 self.trans_indiv(sample)
+#                 self.next_gen.append(sample)
+                   
     def trans_indiv(self,x):
         self.pick_indiv.remove(x)
         
-    def cross(self,(ind1,ind2)):
+    def cross(self,(ind1,ind2),mutations=True):
         """ Simulate the reproduction beetween two individuals : ~70% of variability """
-        A = ind1.graph_to_adj_mat()
-        B = ind2.graph_to_adj_mat()
+        if mutations :
+            A = ind1.apply_mutations()
+            B = ind2.apply_mutations()
+        else :
+            A = ind1.graph_to_adj_mat()
+            B = ind2.graph_to_adj_mat()
+
         X = np.array(nx.adjacency_matrix(nx.fast_gnp_random_graph(self.size_indiv,0.2))).astype(int)
         self.next_gen.append(Individual(mat=((A+B)%2)*X+(A+B)/2,id=rd.choice(NAMES)))
         self.next_gen.append(Individual(mat=((A+B)%2)*((X+np.ones((self.size_indiv,self.size_indiv),dtype=np.int))%2)+(A+B)/2,id=rd.choice(NAMES)))
