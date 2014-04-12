@@ -56,7 +56,6 @@ class Individual():
         plt.plot(self.list_degrees_log,self.list_count_log)
         plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
-
     """        
     def clique_graph(self,generation,i):
         plt.plot(self.list_degrees,self.list_meanclust_log)
@@ -65,10 +64,34 @@ class Individual():
     """          
     def apply_mutations(self):
         m = self.graph_to_adj_mat()
-        for x in range(int(0.3*NB_NODES)):
-            i = rd.randint(0,NB_NODES-1)
+        #Substitutions
+        for x in range(int(RATE_SUB*NB_NODES)):
+            #Attention petit biais : Un locus peut muter 2 fois et donc rester stable, affaiblissement 
+            #du taux de mutation
+            i = rd.randint(0,NB_NODES-1) #Je m'interroge sur la pertinence de ce -1
             j = rd.randint(i,NB_NODES-1)
             m = substitution(m,i,j)
+
+        #Local (One node concerns) insertions and deletions.
+        for x in range(int(RATE_LOCAL_INS*NB_NODES)):
+            i = rd.randint(0,NB_NODES-1) #Je m'interroge toujours sur la pertinence de ce -1
+            j = rd.randint(i,NB_NODES-1)
+            m = insertion(m,i,j,rd.randint(0,1))
+
+        for x in range(int(RATE_LOCAL_DEL*NB_NODES)):
+            i = rd.randint(0,NB_NODES-1) #Je m'interroge encore sur la pertinence de ce -1
+            j = rd.randint(i,NB_NODES-1)
+            m = deletion(m,i,j)
+
+        #Global insertions and deletions.
+        if rd.random() < RATE_GLOBAL_INS:
+            i = rd.randint(0,np.sum(np.arange(NB_NODES))) 
+            m = ins_in_compr(m,i,rd.randint(0,1))
+
+        if rd.random() < RATE_GLOBAL_DEL:
+            i = rd.randint(0,np.sum(np.arange(NB_NODES))) 
+            m = del_in_compr(m,i)
+
         return m
 
     def power_degree_law(self,generation,i):
