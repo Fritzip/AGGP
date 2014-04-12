@@ -1,4 +1,5 @@
 import numpy as np
+#import random as rand
 
 #Compress the matrix, based on the fact it's symetrical, diagonal is null and matrix is binary 
 def compress(m):
