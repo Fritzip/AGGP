@@ -27,7 +27,7 @@ class Progressbar(threading.Thread):
             if not self.stopped :
                 self.remaining = self.time_last-(time.time()-self.zero)
                 i = int(100-(100.*self.remaining/self.time_last))
-                update_progress("Generation "+str(self.gen),i)
+                update_progress("Generation {0:3d}/{1}".format(self.gen,NB_GEN),i)
                 time.sleep(0.1)
             else:
                 break

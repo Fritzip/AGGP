@@ -82,7 +82,7 @@ class Population():
 
                 if PROGRESS_GEN and self.generation != 0:
                     bar.stop()
-                    update_progress("Generation "+str(self.generation),100)
+                    update_progress("Generation {0:3d}/{1}".format(self.generation,NB_GEN),100)
                     
                 self.prints()
                 self.plots()
@@ -116,11 +116,8 @@ class Population():
                     elif n > self.nb_best:
                         raise IOError
                     break 
-                except IOError:
-                    print FAIL+"You choose poorly"+ENDC
-                    pass
                 except:
-                    print FAIL+"Int asked"+ENDC
+                    print FAIL+"Wrong answer"+ENDC
                     pass
             
             for i in range(n):
@@ -128,8 +125,6 @@ class Population():
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best",(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
-            print "\n"
-        
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         

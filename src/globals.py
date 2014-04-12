@@ -3,7 +3,37 @@
 # Dependancies : networkx, numpy, graphviz, matplotlib
 
 import networkx as nx
-import sys, os
+import sys, os, shutil
+import argparse
+
+####################################################################
+#			Arguments parser
+####################################################################
+parser = argparse.ArgumentParser(description="Biological Graph Generator")
+group = parser.add_mutually_exclusive_group()
+
+parser.add_argument("-i", metavar="FILE",
+                    help="Take file of parameters as input")
+
+parser.add_argument("-p","--param",action="store_true",
+                    help="Ask for every parameters of the simulation")
+
+group.add_argument("-v", "--verbose", action="store_true")
+
+group.add_argument("-q", "--quiet", action="store_true")
+
+parser.add_argument("-f","--freq",
+                    help="Frequency of displaying informations")
+
+parser.add_argument("-g","--graph", metavar="X",
+                    help="Plot graph output every X generation")
+
+parser.add_argument("-c","--clear",action="store_true",
+                    help="Clear all output (files, graphs and pictures) from previous run")
+
+
+args = parser.parse_args()
+
 
 ####################################################################
 #			Global Parameters
@@ -13,13 +43,20 @@ IMG = "../img/"
 IN = "../in/"
 OUT = "../out/"
 
+if args.clear:
+    print "Removing previous outputs"
+    try:
+        shutil.rmtree(IMG)
+        shutil.rmtree(OUT)
+    except:
+        pass
+    
 for PATH in [IMG,OUT]:
     if not os.path.exists(PATH):
         os.makedirs(PATH)
         
 # Plot png in /img
 PLOT_PDL = 1001 # plot degree graph every X generation
-#PLOT_CF = 1001 # plot clique formation graph every X generation
 PLOT_GR = 1001 # plot graph every X generation
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
