@@ -17,7 +17,7 @@ for PATH in [IMG,OUT]:
         os.makedirs(PATH)
         
 # Plot png in /img
-PLOT_PDL = 1001 # plot degree graph every X generation
+PLOT_PDL = 1 # plot degree graph every X generation
 #PLOT_CF = 1001 # plot clique formation graph every X generation
 PLOT_GR = 1001 # plot graph every X generation
 PLOT_GEN_ZERO = False # plot initials individuals ?
@@ -47,9 +47,14 @@ SW = 1
 CF = 1
 
 # Random Reference
-#G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-C_RAND = 1 #nx.average_clustering(G_RAND)
-L_RAND = 1 #nx.average_shortest_path_length(G_RAND)
+G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+short_path_list=[]
+coeff_clustering_list=[]
+for i in range(NB_INDIV) :
+    short_path_list.append(nx.average_clustering(G_RAND))
+    coeff_clustering_list.append(nx.average_shortest_path_length(G_RAND))
+C_RAND = sum(coeff_clustering_list)/len(coeff_clustering_list) 
+L_RAND = sum(short_path_list)/len(short_path_list) 
 
 # Miscellaneous
 NAMES = open(IN+"names").read().splitlines()

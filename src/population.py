@@ -3,6 +3,7 @@
 
 from individual import *
 from progressbar import *
+from globals import *
 
 ####################################################################
 #			Population
@@ -34,20 +35,13 @@ class Population():
         self.size_pop = size_pop
         self.size_indiv = size_indiv
         self.nb_best = int(self.size_pop*RATE_ELITISM)+1
-        
-        mean_shortest_path=[]
-        mean_coefficient_clustering=[]
-        
+
         for i in range(self.size_pop):
             self.indiv.append(Individual(nb_nodes=self.size_indiv,id=rd.choice(NAMES)))
             self.score.append(0)
             self.score_pdl.append(0)
             self.score_sw.append(0)
             self.score_cf.append(0)
-            mean_shortest_path.append((self.indiv[i]).average_short_path())
-            mean_coefficient_clustering.append((self.indiv[i]).average_coeff_clustering())
-        L_RAND=sum(mean_shortest_path)/len(mean_shortest_path)         
-        C_RAND=sum(mean_coefficient_clustering)/len(mean_coefficient_clustering)
 
         
     
@@ -313,10 +307,10 @@ class Population():
 
     def plots(self):
         if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
-            i=1
-            for indi in self.indiv :
-                i += 100./len(self.indiv)
-                indi.graphizer("Indiv Generation {}".format(self.generation),i)
+            j=1
+            for i in range(len(self.indiv)):
+                j += 100./len(self.indiv)
+                self.indiv[i].graphizer("Indiv Generation {}".format(self.generation),j)
             print ""
             
         if self.generation%PLOT_PDL==0:
@@ -324,6 +318,7 @@ class Population():
             for indi in self.indiv :
                 i += 100./len(self.indiv)
                 indi.degree_graph("PDL Graphs Generation {}".format(self.generation),i)
+                
             print ""
         
 

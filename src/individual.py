@@ -124,9 +124,11 @@ class Individual():
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
         C = nx.average_clustering(self.graph)
-        S=(C/C_RAND)/(L/L_RAND)   
+        S=(C/C_RAND)/(L/L_RAND)
+        if S<1 : self.penalite+=50
         #self.score_sw = (1-C)*L # A préciser !
         self.score_sw=abs(1-S)*20
+        print str(C) + " " + str(C_RAND)
         
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
@@ -168,8 +170,9 @@ class Individual():
         # Log
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
+
         #self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
-        
+    
     def calc_score(self,generation,i):
         """ Fitness function """
         self.score_pdl = 1
@@ -181,7 +184,7 @@ class Individual():
             
         # Score functions
         self.power_degree_law(generation,i)
-        self.small_world()
+        #self.small_world()
         #self.clique_formation(generation,i)
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
