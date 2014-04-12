@@ -41,7 +41,7 @@ class Individual():
     
     def graphizer(self, label, i):
         update_progress("Plotting {}".format(label),i)
-        nx.draw(self.graph)
+        nx.draw_graphviz(self.graph)
         b=plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
 
@@ -115,11 +115,8 @@ class Individual():
         #print "moysup = ",(moysup, len(self.clustsup))
         #print "moyinf = ",(moyinf, len(self.clustinf))
         #if len(self.clustsup)<int(0.2*NB_NODES):self.penalite += 20
-        self.score_cf = (1-moysup)+moyinf+ abs(0.1*NB_NODES-len(self.clustsup))*0.1
+        self.score_cf = (1-moysup)+moyinf+ abs(0.3*NB_NODES-len(self.clustsup))*0.5
                 
-
-
-
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
@@ -182,7 +179,7 @@ class Individual():
         # Score functions
         self.power_degree_law(generation,i)
         self.small_world()
-        #self.clique_formation(generation,i)
+        self.clique_formation(generation,i)
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 

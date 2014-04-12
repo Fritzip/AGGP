@@ -251,11 +251,11 @@ class Population():
 
     def save2sif(self,indiv):
         m = indiv.graph_to_adj_mat()
-        sif = open(OUT+indiv.id+'.csv','w')
+        sif = open(OUT+indiv.id+'.sif','w')
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
-                    sif.write(str(i)+'\t'+str(j)+'\n')
+                    sif.write(str(i)+'\tpp\t'+str(j)+'\n')
         sif.close()
         
     def prints(self):
