@@ -126,7 +126,7 @@ class Population():
             for i in range(n):
                 self.print_info_indiv(self.best_ever_indiv[i])
             for i in range(n):
-                self.best_ever_indiv[i].graphizer("Best",(i+1)*100./n)
+                self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
