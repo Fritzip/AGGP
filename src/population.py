@@ -336,7 +336,7 @@ class Population():
 
     def convert_xgmml(self,matrice_3D):            # conversion de la matrice 3D d'adjacence en format XGMML
         
-        f = open("AGGP.xgmml","w")
+        f = open(OUT+"AGGP.xgmml","w")
         
         # En tête :
         
@@ -347,7 +347,6 @@ class Population():
         f.write('    <graphics fill="#000000"/>\n')
         
         # Parcours de la matrice 3D :
-        
         
         # Nodes :
         
