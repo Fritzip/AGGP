@@ -121,6 +121,10 @@ def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 
     sys.stdout.write('\r{2:<25} [{0}] {1:3d}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
     sys.stdout.flush()
 
+def update_gen(gen):
+    sys.stdout.write('\r{0:<25}'.format("Generation {0:3d}/{1}".format(gen,NB_GEN)))
+    sys.stdout.flush()
+    
 def weighted_sample(items, n):
     """ deprecated (used in wheel selection)"""
     total = float(sum(w for w, v in items))
