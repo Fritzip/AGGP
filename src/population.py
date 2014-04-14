@@ -12,7 +12,7 @@ from progressbar import *
 class Population():
     """ Population including all the individuals """
     def __init__(self,size_pop=NB_INDIV,size_indiv=NB_NODES):
-        print "Initialization ..." 
+        if VERBOSE : print "Initialization ..." 
         self.indiv = []
         self.score = []
         self.score_pdl = []
@@ -29,6 +29,8 @@ class Population():
         self.best_ever_indiv = []
         
         self.next_gen = []
+
+        self.matrice_3D = []
 
         self.generation = 1
         
@@ -62,15 +64,14 @@ class Population():
         self.fpdl = open(OUT+'evo_pdl','w')
         self.fsw = open(OUT+'evo_sw','w')
         self.fcf = open(OUT+'evo_cf','w')
-        #matrice_3D = []
-
+        
         # Genetic algorithm
         while self.generation<NB_GEN and not ERROR:
             try:
                 if PROGRESS_GEN and self.generation != 0:
                     bar = Progressbar(self.generation,time_laps)
                     bar.start()
-                elif INFO_FREQ > 1:
+                elif INFO_FREQ > 1 or QUIET:
                     update_gen(self.generation)
                 start = time.time()
                 self.evaluation()
@@ -82,10 +83,11 @@ class Population():
                 if PROGRESS_GEN and self.generation != 0:
                     bar.stop()
                     update_progress("Generation {0:3d}/{1}".format(self.generation,NB_GEN),100)
-                
-                #matrix_adjacency = self.best_ever_indiv[0].graph_to_adj_mat()
-                #matrix_adjacency = np.array(matrix_adjacency)				
-                #matrice_3D.append(matrix_adjacency)
+
+                if CYTO3D:
+                    matrix_adjacency = self.best_ever_indiv[0].graph_to_adj_mat()
+                    matrix_adjacency = np.array(matrix_adjacency)				
+                    self.matrice_3D.append(matrix_adjacency)
                 
                 self.prints()
                 self.plots()
@@ -107,7 +109,10 @@ class Population():
         self.fpdl.close()
         self.fsw.close()
         self.fcf.close()
-        #self.convert_xgmml(matrice_3D)
+
+        if CYTO3D:
+            self.convert_xgmml()
+
         print "\n{1}Done in {0:.2f} sec {2}".format((time.time()-start_algo),OKGREEN,ENDC)
 
         if self.generation > 1:
@@ -227,54 +232,6 @@ class Population():
                 self.trans_indiv(sample)
                 self.mutation(sample)
 
-    def convert_xgmml(self,matrice_3D):            # conversion de la matrice 3D d'adjacence en format XGMML
-
-        f = open("AGGP.xgmml","w")
-		
-        # En tête :
-        
-        f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
-        f.write('<!-- Created by 4BiM -->\n',)
-        f.write('<graph label=" BANANA "\n')
-        f.write('    directed="1">\n')
-        f.write('    <graphics fill="#000000"/>\n')
-		
-        # Parcours de la matrice 3D :
-        
-        
-        # Nodes :
-        
-        for nodes in range(len(matrice_3D[0][0])) :
-            sentence = '  <node label="node_' + str(nodes) + '" id="' + str(nodes) + '" start="0" end="' + str(len(matrice_3D)+1) + '">\n'
-            f.write(sentence)
-            sentence = '    <graphics type="CIRCLE" size="8" fill="#0000FF"/>\n'
-            f.write(sentence)
-            f.write('  </node>\n');
-            
-        # Edges :
-
-        for j in range(len(matrice_3D[0])):
-            for i in range(len(matrice_3D[0][0])):
-                start = 1
-                sentence = ''
-                sentence_end =  False
-                for k in range(len(matrice_3D)):
-                    if matrice_3D[k][j][i] != 0.0 and k < NB_GEN-1 :
-                        source = j
-                        target = i
-                        weight = matrice_3D[k][j][i]
-                        distance  = 2#1/weight
-                        sentence = '  <edge label="edge_' + str(source) + '_' + str(target) + '_' + str(start) + '" source="' + str(source) + '" target="' + str(target) + '" start="' + str(start) + '" end="' + str(k+2) + '">\n'				
-                        sentence += '    <graphics width="1" fill="#FFFFFF"/>\n'
-                    else : 
-                        if sentence != '' :
-                            sentence += '  </edge>\n'
-                        f.write(sentence)
-                        sentence = ''
-                        start = k+2						
-        f.write('</graph>\n')
-        f.close()	
-        
         
 # Le modèle de mutation a changé. Tous les individus subissent des mutations,
 # appliquées aléatoirement avec les probabilités choisies. Ceci a pour but de répartir
@@ -334,7 +291,7 @@ class Population():
                     sif.write(str(i)+'\tpp\t'+str(j)+'\n')
         sif.close()
 
-    def convert_xgmml(self,matrice_3D):            # conversion de la matrice 3D d'adjacence en format XGMML
+    def convert_xgmml(self):            # conversion de la matrice 3D d'adjacence en format XGMML
         
         f = open(OUT+"AGGP.xgmml","w")
         
@@ -350,8 +307,8 @@ class Population():
         
         # Nodes :
         
-        for nodes in range(len(matrice_3D[0][0])) :
-            sentence = '  <node label="node_' + str(nodes) + '" id="' + str(nodes) + '" start="0" end="' + str(len(matrice_3D)+1) + '">\n'
+        for nodes in range(len(self.matrice_3D[0][0])) :
+            sentence = '  <node label="node_' + str(nodes) + '" id="' + str(nodes) + '" start="0" end="' + str(len(self.matrice_3D)+1) + '">\n'
             f.write(sentence)
             sentence = '    <graphics type="CIRCLE" size="8" fill="#0000FF"/>\n'
             f.write(sentence)
@@ -359,16 +316,16 @@ class Population():
                 
         # Edges :
 
-        for j in range(len(matrice_3D[0])):
-            for i in range(len(matrice_3D[0][0])):
+        for j in range(len(self.matrice_3D[0])):
+            for i in range(len(self.matrice_3D[0][0])):
                 start = 1
                 sentence = ''
                 sentence_end =  False
-                for k in range(len(matrice_3D)):
-                    if matrice_3D[k][j][i] != 0.0 and k < NB_GEN-1 :
+                for k in range(len(self.matrice_3D)):
+                    if self.matrice_3D[k][j][i] != 0.0 and k < NB_GEN-1 :
                         source = j
                         target = i
-                        weight = matrice_3D[k][j][i]
+                        weight = self.matrice_3D[k][j][i]
                         distance  = 2#1/weight
                         sentence = '  <edge label="edge_' + str(source) + '_' + str(target) + '_' + str(start) + '" source="' + str(source) + '" target="' + str(target) + '" start="' + str(start) + '" end="' + str(k+2) + '">\n'				
                         sentence += '    <graphics width="1" fill="#FFFFFF"/>\n'
