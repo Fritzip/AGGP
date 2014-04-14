@@ -3,7 +3,37 @@
 # Dependancies : networkx, numpy, graphviz, matplotlib
 
 import networkx as nx
-import sys, os
+import sys, os, shutil
+import argparse
+
+####################################################################
+#			Arguments parser
+####################################################################
+parser = argparse.ArgumentParser(description="Biological Graph Generator")
+group = parser.add_mutually_exclusive_group()
+
+parser.add_argument("-i", metavar="FILE",
+                    help="Take file of parameters as input")
+
+parser.add_argument("-p","--param",action="store_true",
+                    help="Ask for every parameters of the simulation")
+
+group.add_argument("-v", "--verbose", action="store_true")
+
+group.add_argument("-q", "--quiet", action="store_true")
+
+parser.add_argument("-f","--freq",
+                    help="Frequency of displaying informations")
+
+parser.add_argument("-g","--graph", metavar="X",
+                    help="Plot graph output every X generation")
+
+parser.add_argument("-c","--clear",action="store_true",
+                    help="Clear all output (files, graphs and pictures) from previous run")
+
+
+args = parser.parse_args()
+
 
 ####################################################################
 #			Global Parameters
@@ -13,18 +43,25 @@ IMG = "../img/"
 IN = "../in/"
 OUT = "../out/"
 
+if args.clear:
+    print "Removing previous outputs"
+    try:
+        shutil.rmtree(IMG)
+        shutil.rmtree(OUT)
+    except:
+        pass
+    
 for PATH in [IMG,OUT]:
     if not os.path.exists(PATH):
         os.makedirs(PATH)
         
 # Plot png in /img
-PLOT_PDL = 5 # plot degree graph every X generation
-#PLOT_CF = 1001 # plot clique formation graph every X generation
-PLOT_GR = 4 # plot graph every X generation
+PLOT_PDL = 1001 # plot degree graph every X generation
+PLOT_GR = 1001 # plot graph every X generation
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Parameters of algogen
-NB_GEN = 1000 # genetic algo's iteration number
+NB_GEN = 100 # genetic algo's iteration number
 NB_NODES = 60
 NB_INDIV = 30
 
@@ -53,14 +90,9 @@ SW = 1
 CF = 1
 
 # Random Reference
-G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-short_path_list=[]
-coeff_clustering_list=[]
-for i in range(NB_INDIV) :
-    short_path_list.append(nx.average_clustering(G_RAND))
-    coeff_clustering_list.append(nx.average_shortest_path_length(G_RAND))
-C_RAND = sum(coeff_clustering_list)/len(coeff_clustering_list) 
-L_RAND = sum(short_path_list)/len(short_path_list) 
+#G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
+C_RAND = 1 #nx.average_clustering(G_RAND)
+L_RAND = 1 #nx.average_shortest_path_length(G_RAND)
 
 # Miscellaneous
 NAMES = open(IN+"names").read().splitlines()
@@ -89,6 +121,10 @@ def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 
     sys.stdout.write('\r{2:<25} [{0}] {1:3d}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
     sys.stdout.flush()
 
+def update_gen(gen):
+    sys.stdout.write('\r{0:<25}'.format("Generation {0:3d}/{1}".format(gen,NB_GEN)))
+    sys.stdout.flush()
+    
 def weighted_sample(items, n):
     """ deprecated (used in wheel selection)"""
     total = float(sum(w for w, v in items))
