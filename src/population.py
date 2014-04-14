@@ -353,7 +353,7 @@ class Population():
             for i in range(len(self.best_ever_score)):
                 print "║{0:7.2f} ┆ {1:<13}║{2:7.2f} ┆ {3:<13}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
 
-            print "╚{0}╩{0}╝\n".format('═'*((LONG-3)/2))
+            print "╚{0}╩{0}╝".format('═'*((LONG-3)/2))
         
         # INFO SELECTED INDIV
         if INFO_SELECT and self.generation%INFO_FREQ==0:
@@ -375,21 +375,25 @@ class Population():
 
         # INFO GENERATION BOX
         if INFO_GEN and self.generation%INFO_FREQ==0:
+            indi = self.best_ever_indiv[0]
             print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*39,"GENERATION {0}".format(self.generation).center(37),HEADER,ENDC)
             print "║ {2}{0:7.2f} ┆ {1:<10} : {4:<14}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC,self.best_ever_indiv[0].id)
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_pdl,"Power Degree Law")
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_sw,"Small World")
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_cf,"Clique Formation")
             print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
             print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
             print "╚{0}╝".format('═'*39)
             
     def print_info_indiv(self,indi):
         #indi = self.indiv[i]
-        print "+{}+".format('-'*30)
+        print "\n+{}+".format('-'*30)
         print "|{}|".format(indi.id.center(30))
         print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl,"Power Degree Law")
         print "| {0:7.2f} | {1:<18} |".format(indi.score_sw,"Small World")
         print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
         print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
-        print "+{}+\n".format('-'*30)
+        print "+{}+".format('-'*30)
 
     def plots(self):
         if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
