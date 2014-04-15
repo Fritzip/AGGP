@@ -11,8 +11,8 @@ import argparse
 #			Global Parameters (default)
 ####################################################################
 # Parameters of algogen
-NB_GEN = 500 # genetic algo's iteration number
-NB_NODES = 100
+NB_GEN = 100 # genetic algo's iteration number
+NB_NODES = 50
 NB_INDIV = 30
 
 # Plot png in /img
@@ -43,7 +43,7 @@ RATE_GLOBAL_INS = 0.2
 RATE_GLOBAL_DEL = 0.1
 
 # Scores Rates
-PDL = 30
+PDL = 3 #30
 SW = 3
 CF = 1
 
