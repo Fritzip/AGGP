@@ -130,6 +130,7 @@ class Population():
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
                 self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
+                self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         
