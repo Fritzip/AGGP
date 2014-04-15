@@ -139,7 +139,7 @@ class Population():
         """ Compute the score using fitness function """
         count = 0
         for i in range(len(self.indiv)):
-            self.score[i] = self.indiv[i].calc_score(self.generation,count)
+            self.score[i] = self.indiv[i].calc_score()
             self.score_pdl[i] = self.indiv[i].score_pdl*PDL
             self.score_sw[i] = self.indiv[i].score_sw*SW
             self.score_cf[i] = self.indiv[i].score_cf*CF

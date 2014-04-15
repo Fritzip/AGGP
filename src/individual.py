@@ -38,7 +38,7 @@ class Individual():
         try:
             self.graph = self.adj_mat_to_graph(mat)
         except:
-            self.graph = nx.fast_gnp_random_graph(nb_nodes,0.1)
+            self.graph = nx.fast_gnp_random_graph(nb_nodes,0.2)
             
     def graph_to_adj_mat(self):
         return np.array(nx.adjacency_matrix(self.graph)).astype(int)
@@ -97,44 +97,57 @@ class Individual():
 
         return m
 
-    def power_degree_law(self,generation,i):
+    def power_degree_law(self):
         """ power degree law """
 
-        slope=stats.linregress(self.list_degrees_log,self.list_count_log)
+        if len(self.list_degrees_log) <= 0.05*(NB_NODES) :
+            self.penalite+=200
+        else :
+            #if len(self.list_degrees_log) < 0.15*(NB_NODES) :
+            #    self.penalite+=50
+            #    print len(self.list_degrees_log)
+               
+            slope=stats.linregress(self.list_degrees_log[:int(0.8*len(self.list_degrees_log))],self.list_count_log[:int(0.8*len(self.list_degrees_log))])
         
-        SCE=(slope[4]**2)*NB_NODES
+            SCE=(slope[4]**2)*NB_NODES
 
-        if slope[0] > 0 : self.penalite += 20
+            #print "SCE = " + str(SCE*5) +" pente = " + str(slope[0]) + "   erreur de pente : " + str(abs(-1-slope[0])*15) +"\n"
             
-        self.score_pdl = abs(-1.5-slope[0])+SCE
+
+            if slope[0] > 0 : self.penalite += 100
+            
+            self.score_pdl = abs(-2-slope[0])+SCE*10
 
         
         
-    def clique_formation(self,generation,i):
-        """ Compute clique formation score through log(linear) regression """
+    def clique_formation(self):
+        """ Compute clique formation score through log(linear) regression 
 
         lin_regress_clique=stats.linregress(self.list_degrees_for_clustering_log,self.list_clustering_coeff_log)
         #print "\n liste des degrés en log : " +str(self.list_degrees_for_clustering_log)
         #print "liste des degrés : " + str(self.deg_dict.values())
+        #print "\n liste des coeff de clustering : " +str(self.clustl_dict.values()) + "\n"
+
 
         SCE_clique=(lin_regress_clique[4]**2)*NB_NODES
 
         if lin_regress_clique[0] > 0 : self.penalite += 20 
         self.score_cf = abs(-0.5-lin_regress_clique[0])+SCE_clique
+        """
         
-        '''
-        moysup = np.mean(self.clustsup) if len(self.clustsup)>0 else 0#sum(self.clustsup)/len(self.clustsup)
-        moyinf = np.mean(self.clustinf) if len(self.clustsup)>0 else 0#sum(self.clustinf)/len(self.clustinf)
-        #print "moysup = ",(moysup, len(self.clustsup))
-        #print "moyinf = ",(moyinf, len(self.clustinf))
-        #if len(self.clustsup)<int(0.2*NB_NODES):self.penalite += 20
-        #self.score_cf = (1-moysup)+moyinf+ abs(0.3*NB_NODES-len(self.clustsup))*0.5
-        '''     
+        self.score_cf=abs((self.list_degrees[-1::])[0]-25)*5
+        #print self.score_cf
+
+        
+        
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
-        C = nx.average_clustering(self.graph)
+        #C = nx.average_clustering(self.graph)
         self.score_sw=abs(L-L_RAND)
+        if (self.score_sw*SW >6) :
+            self.penalite+=100
+        #print "\n" + str(L) + "    " +str(L_RAND) + "\n"
         #self.score_sw = (1-C)*L # A préciser !
 #        self.score_sw=abs(1-S)*50
         
@@ -145,8 +158,8 @@ class Individual():
             new_edge.append((rd.sample(main,1)[0],rd.sample(sub,1)[0]))
         return new_edge
     
-    def score_toolbox(self):
 
+    def score_toolbox(self):
         # Correction for unconnected_graph
         if not nx.is_connected(self.graph):
             subnods = nx.connected_components(self.graph)
@@ -158,40 +171,17 @@ class Individual():
 
         self.list_degrees = list(set(self.deg_dict.values())) # [unique dict values]
 
-        """
-        # Build clustfk (clustering~k)
-        self.clustfk = {} # {k:mean(local_clust_of_k_deg_nodes)}
-        for x in self.list_degrees : self.clustfk[x]=[]
-        zipp = zip(self.deg_dict.values(), self.deg_dict.keys()) 
-        map(lambda x: self.clustfk[x[0]].append(self.clustl_dict[x[1]]), zipp)
-        for x in self.clustfk.keys() : self.clustfk[x]=np.mean(self.clustfk[x])
-        """
-        #a = np.mean(self.clustl_dict.values)
-        self.clustsup = filter(lambda x: x>0.45, self.clustl_dict.values())
-        self.clustinf = filter(lambda x: x<=0.45, self.clustl_dict.values())
-
         # Lists
         values = sorted((self.deg_dict.values()))
         self.list_count = [values.count(x) for x in self.list_degrees]
-        #self.list_meanclust = self.clustfk.values()
-
         # Log
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]
-
-
         self.list_degrees_for_clustering_log=[math.log10(x+EPS) for x in self.deg_dict.values()]
-
         self.list_clustering_coeff_log=[math.log10(x+EPS) for x in self.clustl_dict.values()]
 
-        #print "liste des coeff de clustering : " +str(self.clustl_dict.values())
-        #print "liste des coeff de clustering en log : " +str(self.list_clustering_coeff_log) + "\n"
 
-
-
-        #self.list_meanclust_log = [math.log10(x+EPS) for x in self.list_meanclust]
-
-    def calc_score(self,generation,i):
+    def calc_score(self):
         """ Fitness function """
         self.score_pdl = 1
         self.score_sw = 1
@@ -201,9 +191,9 @@ class Individual():
         self.score_toolbox()
             
         # Score functions
-        self.power_degree_law(generation,i)
-        #self.small_world()
-        self.clique_formation(generation,i)
+        self.power_degree_law()
+        self.small_world()
+        self.clique_formation()
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 

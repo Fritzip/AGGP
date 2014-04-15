@@ -11,8 +11,8 @@ import argparse
 #			Global Parameters (default)
 ####################################################################
 # Parameters of algogen
-NB_GEN = 100 # genetic algo's iteration number
-NB_NODES = 60
+NB_GEN = 500 # genetic algo's iteration number
+NB_NODES = 100
 NB_INDIV = 30
 
 # Plot png in /img
@@ -28,24 +28,24 @@ INFO_INDIV = False
 INFO_BEST = True
 INFO_SELECT = False
 INFO_GEN = True
-INFO_FREQ = 5 # information frequency (every X generation)
+INFO_FREQ = 1 # information frequency (every X generation)
 PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_GEN or PLOT_GR < NB_GEN else True
 
 # Rates
-RATE_ELITISM = 0.2 
+RATE_ELITISM = 0.5 
 RATE_TOURNAMENT = 1-RATE_ELITISM
 RATE_CROSS = 0.4
 # Mutation rates
-RATE_SUB = 0.15
+RATE_SUB = 0.5
 RATE_LOCAL_DEL = 0.1
-RATE_LOCAL_INS = 0.1
-RATE_GLOBAL_INS = 0.05
-RATE_GLOBAL_DEL = 0.05
+RATE_LOCAL_INS = 0.2
+RATE_GLOBAL_INS = 0.2
+RATE_GLOBAL_DEL = 0.1
 
 # Scores Rates
-PDL = 10
-SW = 1
-CF = 100
+PDL = 30
+SW = 3
+CF = 1
 
 ####################################################################
 #			Arguments parser
