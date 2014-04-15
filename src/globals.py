@@ -58,6 +58,7 @@ for PATH in [IMG,OUT]:
 # Plot png in /img
 PLOT_PDL = 1001 # plot degree graph every X generation
 PLOT_GR = 1001 # plot graph every X generation
+PLOT_CF = 20
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Parameters of algogen
@@ -76,28 +77,32 @@ PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_
 # Rates
 RATE_ELITISM = 0.2 
 RATE_TOURNAMENT = 1-RATE_ELITISM
-RATE_CROSS = 0.6
+RATE_CROSS = 0.4
 # Mutation rates
-RATE_SUB = 0.1
-RATE_LOCAL_DEL = 0.05
-RATE_LOCAL_INS = 0.05
-RATE_GLOBAL_INS = 0.01
-RATE_GLOBAL_DEL = 0.01
+RATE_SUB = 0.15
+RATE_LOCAL_DEL = 0.1
+RATE_LOCAL_INS = 0.1
+RATE_GLOBAL_INS = 0.05
+RATE_GLOBAL_DEL = 0.05
 
 # Scores Rates
-PDL = 1
+PDL = 10
 SW = 1
-CF = 1
+CF = 100
 
 # Random Reference
-#G_RAND = nx.fast_gnp_random_graph(NB_NODES,0.2)
-C_RAND = 1 #nx.average_clustering(G_RAND)
-L_RAND = 1 #nx.average_shortest_path_length(G_RAND)
+short_path_list=[]
+coeff_clustering_list=[]
+for i in range(NB_INDIV) :
+    short_path_list.append(nx.average_shortest_path_length(nx.fast_gnp_random_graph(NB_NODES,0.2)))
+    coeff_clustering_list.append(nx.average_clustering(nx.fast_gnp_random_graph(NB_NODES,0.2)))
+C_RAND = sum(coeff_clustering_list)/len(coeff_clustering_list) 
+L_RAND = sum(short_path_list)/len(short_path_list)
 
 # Miscellaneous
 NAMES = open(IN+"names").read().splitlines()
 ERROR = False
-EPS = 0.001 # log(x+EPS) to avoid log(0)
+EPS = 0.0001 # log(x+EPS) to avoid log(0)
 
 # Colors
 HEADER = '\033[1m' # bold

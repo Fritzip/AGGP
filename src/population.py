@@ -45,10 +45,7 @@ class Population():
             self.score_pdl.append(0)
             self.score_sw.append(0)
             self.score_cf.append(0)
-            mean_shortest_path.append((self.indiv[i]).average_short_path())
-            mean_coefficient_clustering.append((self.indiv[i]).average_coeff_clustering())
-        L_RAND=sum(mean_shortest_path)/len(mean_shortest_path)         
-        C_RAND=sum(mean_coefficient_clustering)/len(mean_coefficient_clustering)
+            (self.indiv[i]).score_toolbox()
 
         
     
@@ -128,6 +125,7 @@ class Population():
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
+                self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
 
         # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
         
@@ -137,9 +135,9 @@ class Population():
         count = 0
         for i in range(len(self.indiv)):
             self.score[i] = self.indiv[i].calc_score(self.generation,count)
-            self.score_pdl[i] = self.indiv[i].score_pdl
-            self.score_sw[i] = self.indiv[i].score_sw
-            self.score_cf[i] = self.indiv[i].score_cf
+            self.score_pdl[i] = self.indiv[i].score_pdl*PDL
+            self.score_sw[i] = self.indiv[i].score_sw*SW
+            self.score_cf[i] = self.indiv[i].score_cf*CF
             count+=1
             
             # PRINT
@@ -428,9 +426,9 @@ class Population():
         #indi = self.indiv[i]
         print "+{}+".format('-'*30)
         print "|{}|".format(indi.id.center(30))
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl,"Power Degree Law")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_sw,"Small World")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl*PDL,"Power Degree Law")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_sw*SW,"Small World")
+        print "| {0:7.2f} | {1:<18} |".format(indi.score_cf*CF,"Clique Formation")
         print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
         print "+{}+\n".format('-'*30)
 
@@ -447,6 +445,13 @@ class Population():
             for indi in self.indiv :
                 i += 100./len(self.indiv)
                 indi.degree_graph("PDL Graphs Generation {}".format(self.generation),i)
+            print ""
+
+        if self.generation%PLOT_CF==0:
+            i=1
+            for indi in self.indiv :
+                i += 100./len(self.indiv)
+                indi.clique_graph("CF Graphs Generation {}".format(self.generation),i)
             print ""
         
 
