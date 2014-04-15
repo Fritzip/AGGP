@@ -376,9 +376,9 @@ class Population():
             indi = self.best_ever_indiv[0]
             print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*39,"GENERATION {0}".format(self.generation).center(37),HEADER,ENDC)
             print "║ {2}{0:7.2f} ┆ {1:<10} : {4:<14}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC,self.best_ever_indiv[0].id)
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_pdl,"Power Degree Law")
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_sw,"Small World")
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_cf,"Clique Formation")
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_pdl*PDL,"Power Degree Law")
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_sw*SW,"Small World")
+            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_cf*CF,"Clique Formation")
             print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
             print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
             print "╚{0}╝".format('═'*39)
