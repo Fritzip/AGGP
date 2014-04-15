@@ -388,9 +388,9 @@ class Population():
         #indi = self.indiv[i]
         print "\n+{}+".format('-'*30)
         print "|{}|".format(indi.id.center(30))
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl,"Power Degree Law")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_sw,"Small World")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_cf,"Clique Formation")
+        print "| {0:7.2f} | {1:<18} |".format(PDL*indi.score_pdl,"Power Degree Law")
+        print "| {0:7.2f} | {1:<18} |".format(SW*indi.score_sw,"Small World")
+        print "| {0:7.2f} | {1:<18} |".format(CF*indi.score_cf,"Clique Formation")
         print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
         print "+{}+".format('-'*30)
 
