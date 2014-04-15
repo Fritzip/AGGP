@@ -117,9 +117,6 @@ CF = 1
 parser = argparse.ArgumentParser(description="Biological Graph Generator",usage='%(prog)s [options]')
 group = parser.add_mutually_exclusive_group()
 
-#parser.add_argument("-i", metavar="FILE",
-#                    help="Take file of parameters as input")
-
 parser.add_argument("-p","--param",action="store_true",
                     help="Ask for every parameters of the simulation")
 
@@ -133,10 +130,7 @@ parser.add_argument("--no-progress", action="store_true", default=0,
 parser.add_argument("-f","--freq", default=INFO_FREQ, type=int,
                     help="Frequency of displaying informations")
 
-#parser.add_argument("-g","--graph", metavar="X",
-#                    help="Plot graph output every X generation")
-
-parser.add_argument("-s","--save", action="store_true", default=0,
+parser.add_argument("-s","--no-save", action="store_true", default=0,
                     help="Ask at the end if and how you to save and plot individuals")
 
 parser.add_argument("-d","--delete",action="store_true",
@@ -191,8 +185,8 @@ elif args.verbose >= 1:
 if args.no_progress:
     PROGRESS_GEN=False
 
-if args.save:
-    SAVE = True
+if args.no_save:
+    SAVE = False
 
 if args.param:
     choice = raw_input("""{0}What type of parameters would you like to change ?{1}
@@ -242,31 +236,6 @@ if args.param:
             SW = ask("Small World",SW)
             CF = ask("Clique Foration",CF)
 
-"""
-# Parameters of algogen
-NB_GEN = 100 # genetic algo's iteration number
-NB_NODES = 50
-NB_INDIV = 30
-
-# Rates
-RATE_ELITISM = 0.5 
-RATE_TOURNAMENT = 1-RATE_ELITISM
-RATE_CROSS = 0.4
-# Mutation rates
-RATE_SUB = 0.5
-RATE_LOCAL_DEL = 0.1
-RATE_LOCAL_INS = 0.2
-RATE_GLOBAL_INS = 0.2
-RATE_GLOBAL_DEL = 0.1
-
-# Scores Rates
-PDL = 3 #30
-SW = 3
-CF = 1
-"""
-
-
-            
     
 # Paths
 IMG = "../img/"

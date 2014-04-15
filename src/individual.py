@@ -48,7 +48,7 @@ class Individual():
     
     def graphizer(self, label, i):
         update_progress("Plotting {}".format(label),i)
-        nx.draw(self.graph)
+        nx.draw_graphviz(self.graph)
         b=plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
 
@@ -140,13 +140,10 @@ class Individual():
         """
 
         tri = np.mean(nx.triangles(self.graph).values())
-        #print tri
         self.score_cf=1/(tri+EPS)
         #self.score_cf=abs((self.list_degrees[-1::])[0]-25)*5
-        #print self.score_cf
 
-        
-        
+                
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
@@ -167,7 +164,7 @@ class Individual():
 
         except:
             print FAIL+"pas réussi"+ENDC
-        #print "\n" + str(L) + "    " +str(L_RAND) + "\n"
+      
         #self.score_sw = (1-C)*L # A préciser !
         # self.score_sw=abs(1-S)*50
         
