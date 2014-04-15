@@ -7,6 +7,70 @@ import sys, os, shutil
 import argparse
 
 
+# Colors
+HEADER = '\033[1m' # bold
+OKBLUE = '\033[94m' # blue
+OKGREEN = '\033[92m' # green
+WARNING = '\033[93m' # yellow
+FAIL = '\033[91m' # red
+UNDERLINE = '\033[4m'
+ENDC = '\033[0m' # back to normal
+
+####################################################################
+#			Global Functions
+####################################################################
+def symetrize(a):
+    """ deprecated """
+    return -a*a.T + a + a.T
+
+def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 50
+    progress = int(progress)
+    if progress > 100 : progress = 100
+    sys.stdout.write('\r{2:<25} [{0}] {1:3d}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
+    sys.stdout.flush()
+
+def update_gen(gen):
+    sys.stdout.write('\r{0:<25}'.format("Generation {0:3d}/{1}".format(gen,NB_GEN)))
+    sys.stdout.flush()
+    
+def weighted_sample(items, n):
+    """ deprecated (used in wheel selection)"""
+    total = float(sum(w for w, v in items))
+    i = 0
+    w, v = items[0]
+    while n:
+        x = total * (1 - rd.random() ** (1.0 / n))
+        total -= x
+        while x > w:
+            x -= w
+            i += 1
+            w, v = items[i]
+            w -= x
+            yield v
+            n -= 1
+
+def ask(question, default):
+    while True:
+        try:
+            answer = raw_input("({0:>3}) {1} = ".format(default, question))
+            if answer=="":
+                return default
+            return int(answer)
+        except:
+            print FAIL+"Wrong answer!"+ENDC
+            pass
+
+def askf(question, default):
+    while True:
+        try:
+            answer = raw_input("({0:>3}) {1} = ".format(default, question))
+            if answer=="":
+                return default
+            return float(answer)
+        except:
+            print FAIL+"Wrong answer!"+ENDC
+            pass
+        
 ####################################################################
 #			Global Parameters (default)
 ####################################################################
@@ -56,8 +120,8 @@ group = parser.add_mutually_exclusive_group()
 #parser.add_argument("-i", metavar="FILE",
 #                    help="Take file of parameters as input")
 
-#parser.add_argument("-p","--param",action="store_true",
-#                    help="Ask for every parameters of the simulation")
+parser.add_argument("-p","--param",action="store_true",
+                    help="Ask for every parameters of the simulation")
 
 group.add_argument("-v", "--verbose", action="count", default=0)
 
@@ -72,8 +136,8 @@ parser.add_argument("-f","--freq", default=INFO_FREQ, type=int,
 #parser.add_argument("-g","--graph", metavar="X",
 #                    help="Plot graph output every X generation")
 
-#parser.add_argument("-s","--save",
-#                    help="Ask at the end if and how you to save and plot individuals")
+parser.add_argument("-s","--save", action="store_true", default=0,
+                    help="Ask at the end if and how you to save and plot individuals")
 
 parser.add_argument("-d","--delete",action="store_true",
                     help="Delete all output (files, graphs and pictures) from previous run")
@@ -127,6 +191,83 @@ elif args.verbose >= 1:
 if args.no_progress:
     PROGRESS_GEN=False
 
+if args.save:
+    SAVE = True
+
+if args.param:
+    choice = raw_input("""{0}What type of parameters would you like to change ?{1}
+(multiples choices allowed)
+    {0}1. {2:<25} {1}(#gen, #nodes, #indiv)
+    {0}2. {3:<25} {1}(selection, mutation, crossing)
+    {0}3. {4:<25} {1}(PDL, SW, CF)
+    0. Default
+    a. All
+""".format(HEADER+OKBLUE,ENDC,"Algorithm parameters","Rates","Scores Weights"))
+    
+    choices = []
+    for c in list(choice):
+        if c == 'a':
+            choices = [1,2,3]
+            break
+        if c == '0':
+            choices = []
+            break
+        try:
+            i = int(c)
+            if i in [1,2,3] and i not in choices:
+                choices.append(i)
+        except:
+            pass
+
+    for i in choices:
+        if i == 1:
+            print OKBLUE+HEADER+"1. Algorithm parameters"+ENDC
+            NB_GEN = ask("#generation", NB_GEN)
+            NB_NODES = ask("#nodes", NB_NODES)
+            NB_INDIV = ask("#indiv", NB_INDIV)
+            
+        elif i == 2:
+            print OKBLUE+HEADER+"2. Rates"+ENDC
+            RATE_ELITISM = askf("Elitism",RATE_ELITISM)
+            RATE_CROSS = askf("Crossing",RATE_CROSS)
+            RATE_SUB = askf("Substitutions",RATE_SUB)
+            RATE_LOCAL_DEL = askf("Deletions (loc)",RATE_LOCAL_DEL)
+            RATE_LOCAL_INS = askf("Insertions (loc)",RATE_LOCAL_INS)
+            RATE_GLOBAL_DEL = askf("Deletions (glob)",RATE_GLOBAL_DEL)
+            RATE_GLOBAL_INS = askf("Insertions (glob)",RATE_GLOBAL_INS)
+            
+        elif i == 3:
+            print OKBLUE+HEADER+"3. Scores weights)"+ENDC
+            PDL = ask("Power Degree Law",PDL)
+            SW = ask("Small World",SW)
+            CF = ask("Clique Foration",CF)
+
+"""
+# Parameters of algogen
+NB_GEN = 100 # genetic algo's iteration number
+NB_NODES = 50
+NB_INDIV = 30
+
+# Rates
+RATE_ELITISM = 0.5 
+RATE_TOURNAMENT = 1-RATE_ELITISM
+RATE_CROSS = 0.4
+# Mutation rates
+RATE_SUB = 0.5
+RATE_LOCAL_DEL = 0.1
+RATE_LOCAL_INS = 0.2
+RATE_GLOBAL_INS = 0.2
+RATE_GLOBAL_DEL = 0.1
+
+# Scores Rates
+PDL = 3 #30
+SW = 3
+CF = 1
+"""
+
+
+            
+    
 # Paths
 IMG = "../img/"
 IN = "../in/"
@@ -150,8 +291,13 @@ for PATH in [IMG,OUT]:
 short_path_list=[]
 coeff_clustering_list=[]
 for i in range(NB_INDIV) :
-    short_path_list.append(nx.average_shortest_path_length(nx.fast_gnp_random_graph(NB_NODES,0.2)))
-    coeff_clustering_list.append(nx.average_clustering(nx.fast_gnp_random_graph(NB_NODES,0.2)))
+    while True:
+        graph = nx.fast_gnp_random_graph(NB_NODES,0.2)
+        if nx.is_connected(graph):
+            short_path_list.append(nx.average_shortest_path_length(graph))
+            coeff_clustering_list.append(nx.average_clustering(graph))
+            break
+    
 C_RAND = sum(coeff_clustering_list)/len(coeff_clustering_list) 
 L_RAND = sum(short_path_list)/len(short_path_list)
 
@@ -159,45 +305,3 @@ L_RAND = sum(short_path_list)/len(short_path_list)
 NAMES = open(IN+"names").read().splitlines()
 ERROR = False
 EPS = 0.0001 # log(x+EPS) to avoid log(0)
-
-# Colors
-HEADER = '\033[1m' # bold
-OKBLUE = '\033[94m' # blue
-OKGREEN = '\033[92m' # green
-WARNING = '\033[93m' # yellow
-FAIL = '\033[91m' # red
-UNDERLINE = '\033[4m'
-ENDC = '\033[0m' # back to normal
-
-####################################################################
-#			Global Functions
-####################################################################
-def symetrize(a):
-    """ deprecated """
-    return -a*a.T + a + a.T
-
-def update_progress(label,progress,bar_length=25): # small 20, medium 25, large 50
-    progress = int(progress)
-    if progress > 100 : progress = 100
-    sys.stdout.write('\r{2:<25} [{0}] {1:3d}%'.format('#'*(progress/int(100./bar_length))+'-'*(bar_length-(progress/int(100./bar_length))), progress,label))
-    sys.stdout.flush()
-
-def update_gen(gen):
-    sys.stdout.write('\r{0:<25}'.format("Generation {0:3d}/{1}".format(gen,NB_GEN)))
-    sys.stdout.flush()
-    
-def weighted_sample(items, n):
-    """ deprecated (used in wheel selection)"""
-    total = float(sum(w for w, v in items))
-    i = 0
-    w, v = items[0]
-    while n:
-        x = total * (1 - rd.random() ** (1.0 / n))
-        total -= x
-        while x > w:
-            x -= w
-            i += 1
-            w, v = items[i]
-            w -= x
-            yield v
-            n -= 1
