@@ -114,7 +114,7 @@ class Population():
         if self.generation > 1 and SAVE:
             while True:
                 try:
-                    n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}] = ".format(self.nb_best))
+                    n = input("Sauvegarde des n [0:{}] meilleurs individus : n = ".format(self.nb_best))
                     if n == "":
                         n = 1
                     elif n > self.nb_best:
