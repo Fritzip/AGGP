@@ -19,6 +19,7 @@ NB_INDIV = 30
 PLOT_PDL = NB_GEN+1 # plot degree graph every X generation
 PLOT_GR = NB_GEN+1 # plot graph every X generation
 CYTO3D = False
+SAVE = True
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Plot information box
@@ -65,11 +66,14 @@ group.add_argument("-q", "--quiet", action="store_true", default=0)
 parser.add_argument("--no-progress", action="store_true", default=0,
                     help="Disable the progress bar")
 
-parser.add_argument("-f","--freq",default=INFO_FREQ,type=int,
+parser.add_argument("-f","--freq", default=INFO_FREQ, type=int,
                     help="Frequency of displaying informations")
 
 #parser.add_argument("-g","--graph", metavar="X",
 #                    help="Plot graph output every X generation")
+
+#parser.add_argument("-s","--save",
+#                    help="Ask at the end if and how you to save and plot individuals")
 
 parser.add_argument("-d","--delete",action="store_true",
                     help="Delete all output (files, graphs and pictures) from previous run")

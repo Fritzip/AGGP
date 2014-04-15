@@ -52,7 +52,6 @@ class Population():
         L_RAND=sum(mean_shortest_path)/len(mean_shortest_path)         
         C_RAND=sum(mean_coefficient_clustering)/len(mean_coefficient_clustering)
 
-        
     
     def genetic_algo(self):
         start_algo = time.time()
@@ -115,7 +114,7 @@ class Population():
 
         print "\n{1}Done in {0:.2f} sec {2}".format((time.time()-start_algo),OKGREEN,ENDC)
 
-        if self.generation > 1:
+        if self.generation > 1 and SAVE:
             while True:
                 try:
                     n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}] = ".format(self.nb_best))
