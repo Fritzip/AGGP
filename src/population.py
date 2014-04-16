@@ -18,6 +18,10 @@ class Population():
         self.score_pdl = []
         self.score_sw = []
         self.score_cf = []
+
+        self.best_pdl = []
+        self.best_sw = []
+        self.best_cf = []
         
         self.selected_indiv = []
         self.selected_score = []
@@ -129,7 +133,7 @@ class Population():
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
-            
+            self.fitness3D(self.best_pdl,self.best_sw,self.best_cf)
                 #self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
                 #self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
 
@@ -277,6 +281,9 @@ class Population():
         self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\n')
         self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\n')
         self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\n')
+        self.best_pdl.append(min(self.score_pdl))
+        self.best_sw.append(min(self.score_sw))
+        self.best_cf.append(min(self.score_cf))
 
 
     def save2sif(self,indiv):
@@ -334,7 +341,19 @@ class Population():
                         start = k+2						
         f.write('</graph>\n')
         f.close()
-                            
+
+    def fitness3D(self,x,y,z):
+        mpl.rcParams['legend.fontsize'] = 10
+
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.invert_yaxis()
+
+        ax.plot(x, y, z, '-o', label='fitness3D')
+        ax.legend()
+    
+        plt.show()
+        
     def prints(self):
         """ Print, just print """
         # INFO BEST INDIV

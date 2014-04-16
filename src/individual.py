@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # Dependancies : networkx, numpy, graphviz, matplotlib
 
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rd
@@ -62,9 +64,8 @@ class Individual():
         plt.plot(self.list_degrees_for_clustering_log,self.list_clustering_coeff_log)
         plt.savefig(IMG+"CG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-              
 
-
+    
     def apply_mutations(self):
         m = self.graph_to_adj_mat()
         #Substitutions
@@ -149,9 +150,10 @@ class Individual():
         L = nx.average_shortest_path_length(self.graph)
         #C = nx.average_clustering(self.graph)
 
-        #self.score_sw=abs(L-L_RAND)
-        #if (self.score_sw*SW >6) :
-        #    self.penalite+=100
+        self.score_sw=abs(L-L_RAND)
+        if (self.score_sw*SW >6) :
+            self.penalite+=100
+        """
         try:
             a= nx.hits(self.graph)[0]
             print a
@@ -164,7 +166,7 @@ class Individual():
 
         except:
             print FAIL+"pas réussi"+ENDC
-      
+        """   
         #self.score_sw = (1-C)*L # A préciser !
         # self.score_sw=abs(1-S)*50
         
@@ -209,7 +211,7 @@ class Individual():
             
         # Score functions
         self.power_degree_law()
-        #self.small_world()
+        self.small_world()
         self.clique_formation()
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
