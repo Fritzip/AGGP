@@ -131,7 +131,7 @@ parser.add_argument("-f","--freq", default=INFO_FREQ, type=int,
                     help="Frequency of displaying informations")
 
 parser.add_argument("-s","--no-save", action="store_true", default=0,
-                    help="Ask at the end if and how you to save and plot individuals")
+                    help="Do not save and plot individuals")
 
 parser.add_argument("-d","--delete",action="store_true",
                     help="Delete all output (files, graphs and pictures) from previous run")
@@ -273,4 +273,5 @@ L_RAND = sum(short_path_list)/len(short_path_list)
 # Miscellaneous
 NAMES = open(IN+"names").read().splitlines()
 ERROR = False
+WARNVIZ = False
 EPS = 0.0001 # log(x+EPS) to avoid log(0)

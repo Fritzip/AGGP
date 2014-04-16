@@ -1,59 +1,41 @@
-AGGP
-====
+# AGGP #
 
 #### Générateur de graphes biologiquement plausibles par algorithme génétique.
 
-* Installer Git
+### Fichiers ###
+Le projet est divisé en plusieurs fichiers :
+* main.py		*lancement du programme*
+* population.py		*algorithme génétique*
+* individuals.py	*calcul du score*
+* mutations.py		*fonctions de mutations*
+* globals.py		*paramètres et fonctions globales*
+* progressbar.py	*thread d'affichage barre d'avancement*
 
-        apt-get install git
+### Dépendances ###
+Les librairies de base de `Python v2.7` + :
+* numpy
+* networkx
+* graphviz (optionnelle)
+* matplotlib
 
-* Créer un compte GitHub
+### Lancement du programme ###
+	> python main.py -h
+	usage: main.py [options]
 
-    * Dans `Acount settings -> SSH keys` coller sa clef RSA, obtenue avec : 
+	Biological Graph Generator
 
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -p, --param           Ask for every parameters of the simulation
+	  -v, --verbose
+	  -q, --quiet
+	  --no-progress         Disable the progress bar
+	  -f FREQ, --freq FREQ  Frequency of displaying informations
+	  -s, --no-save         Do not save and plot individuals
+	  -d, --delete          Delete all output (files, graphs and pictures) from
+		                previous run
 
-            ssh-keygen -t rsa -C <votremailidentifiant> 
-            cat ~/.ssh/id_rsa.pub
+### Crédits ###
+Jonas Abernot, Arthur Bailly, Johan Chan & Maxime Sainlot
 
-        Si plusieurs ordis, plusieurs clefs à mettre ;)
-
-    * Me donner votre identifiant pour que je vous ajoute au projet. 
-
-
-
-* Pour récupérer le code pour la première fois :
-
-        git clone https://github.com/Fritzip/AGGP.git
-
-    Ca crée le dossier AGGP avec les fichiers, vous pouvez maintenant tout modifier normalement.
-
-* Une fois le dossier créer avant *chaque session de travail*, mettre à jour le dépot (pour prendre en compte les modifs des autres)
-
-        git pull
-
-    (il faut etre dans le dossier)
-
-
-* Après chaque changement IMPORTANT, faire un commit :
-
-        git commit -a -m 'un message explicite !'
-
-* A la fin de la session de travail (et si tout fonctionne bien !), envoyer sur le dépot:
-
-        git push -u origin master
-
-    Cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on en profite pas !
-
-* Pour ajouter un fichier:
- 
-        git add <fichier>
-
-* Pour voir l'état de git (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas ) :
-
-        git status
-
-
-Un peu [plus d'aide là](http://doc.ubuntu-fr.org), si vous voulez :
-
-
-*Merci à Antoine pour ce README.*
+4BIM - INSA Lyon - AGGP

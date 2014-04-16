@@ -50,7 +50,13 @@ class Individual():
     
     def graphizer(self, label, i):
         update_progress("Plotting {}".format(label),i)
-        nx.draw_graphviz(self.graph)
+        try:
+            nx.draw_graphviz(self.graph)
+        except:
+            nx.draw(self.graph)
+            if not WARNVIZ:
+                print WARNING+"Would be best with graphviz"+ENDC
+                WARNVIZ = True
         b=plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
 
