@@ -128,6 +128,8 @@ class Population():
                 self.print_info_indiv(self.best_ever_indiv[i])
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
+                print self.best_ever_indiv[i].list_degrees_log
+                print self.best_ever_indiv[i].list_count_log
                 self.save2sif(self.best_ever_indiv[i])
                 self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
                 self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
@@ -278,6 +280,7 @@ class Population():
         self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\n')
         self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\n')
         self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\n')
+        
 
 
     def save2sif(self,indiv):

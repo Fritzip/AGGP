@@ -106,17 +106,20 @@ class Individual():
             #if len(self.list_degrees_log) < 0.15*(NB_NODES) :
             #    self.penalite+=50
             #    print len(self.list_degrees_log)
-               
+             """  
             slope=stats.linregress(self.list_degrees_log[:int(0.8*len(self.list_degrees_log))],self.list_count_log[:int(0.8*len(self.list_degrees_log))])
+"""
+             slope=stats.linregress(self.list_degrees_log,self.list_count_log)
         
-            SCE=(slope[4]**2)*NB_NODES
+        
+             SCE=(slope[4]**2)*NB_NODES
 
             #print "SCE = " + str(SCE*5) +" pente = " + str(slope[0]) + "   erreur de pente : " + str(abs(-1-slope[0])*15) +"\n"
             
 
-            if slope[0] > 0 : self.penalite += 100
+             if slope[0] > 0 : self.penalite += 100
             
-            self.score_pdl = abs(-2-slope[0])+SCE*10
+             self.score_pdl = abs(-2-slope[0])+SCE*10
 
         
         
@@ -143,13 +146,20 @@ class Individual():
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
-        #C = nx.average_clustering(self.graph)
-        self.score_sw=abs(L-L_RAND)
-        if (self.score_sw*SW >6) :
-            self.penalite+=100
+        C = nx.average_clustering(self.graph)
+        if C-C_RAND<0 :
+            self.score_sw=10
+        else :
+            self.score_sw=abs(C_RAND+0.1-C)*10
+        self.score_sw+=abs(L-L_RAND)
+        #if (self.score_sw >2) :
+         #   self.penalite+=50
         #print "\n" + str(L) + "    " +str(L_RAND) + "\n"
         #self.score_sw = (1-C)*L # A préciser !
 #        self.score_sw=abs(1-S)*50
+        #print abs(C_RAND+0.3-C)*10
+        #print abs(L-L_RAND)
+        #print "\n"
         
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
@@ -192,8 +202,8 @@ class Individual():
             
         # Score functions
         self.power_degree_law()
-        self.small_world()
-        self.clique_formation()
+        #self.small_world()
+        #self.clique_formation()
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 

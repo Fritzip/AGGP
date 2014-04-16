@@ -11,7 +11,7 @@ import argparse
 #			Global Parameters (default)
 ####################################################################
 # Parameters of algogen
-NB_GEN = 500 # genetic algo's iteration number
+NB_GEN = 300 # genetic algo's iteration number
 NB_NODES = 100
 NB_INDIV = 30
 
@@ -43,8 +43,8 @@ RATE_GLOBAL_INS = 0.2
 RATE_GLOBAL_DEL = 0.1
 
 # Scores Rates
-PDL = 30
-SW = 3
+PDL = 10
+SW = 1.5
 CF = 1
 
 ####################################################################
