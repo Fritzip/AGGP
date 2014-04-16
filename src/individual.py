@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rd
-import copy, math, sys, time
+import copy, math, sys, time, subprocess, os
 from scipy import stats as stats
 
 from globals import *

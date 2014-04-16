@@ -75,9 +75,9 @@ class Population():
                     update_gen(self.generation)
                 start = time.time()
                 self.evaluation()
-                self.save() # in files
                 self.selection()
                 self.crossormut()
+                self.save() # in files
                 time_laps = time.time()-start
 
                 if PROGRESS_GEN and self.generation != 0:
@@ -134,10 +134,11 @@ class Population():
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
             self.fitness3D(self.best_pdl,self.best_sw,self.best_cf)
+            os.system('gnuplot ../out/scores.gp')
+   
                 #self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
                 #self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
-
-        # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
+        
         print ""
             
     def evaluation(self):
@@ -277,10 +278,11 @@ class Population():
         self.next_gen.append(Individual(mat = ind.apply_mutations(), id=ind.id))#rd.choice(NAMES)))
 
     def save(self):
-        self.fscore.write(str(self.generation)+'\t'+str(max(self.score))+'\t'+str(sum(self.score)/len(self.score))+'\t'+str(min(self.score))+'\n')
-        self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\n')
-        self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\n')
-        self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\n')
+        best = self.best_ever_indiv[0]
+        self.fscore.write(str(self.generation)+'\t'+str(max(self.score))+'\t'+str(sum(self.score)/len(self.score))+'\t'+str(min(self.score))+'\t'+str(best.score)+'\n')
+        self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\t'+str(best.score_pdl)+'\n')
+        self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\t'+str(best.score_sw)+'\n')
+        self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\t'+str(best.score_cf)+'\n')
         self.best_pdl.append(min(self.score_pdl))
         self.best_sw.append(min(self.score_sw))
         self.best_cf.append(min(self.score_cf))

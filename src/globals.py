@@ -96,7 +96,7 @@ INFO_FREQ = 1 # information frequency (every X generation)
 PROGRESS_GEN = False if INFO_INDIV or NB_NODES*NB_INDIV < 1000 or PLOT_PDL < NB_GEN or PLOT_GR < NB_GEN else True
 
 # Rates
-RATE_ELITISM = 0.5 
+RATE_ELITISM = 0.2
 RATE_TOURNAMENT = 1-RATE_ELITISM
 RATE_CROSS = 0.4
 # Mutation rates
