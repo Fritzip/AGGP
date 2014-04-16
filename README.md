@@ -1,59 +1,48 @@
-AGGP
-====
+# AGGP #
 
 #### Générateur de graphes biologiquement plausibles par algorithme génétique.
 
-* Installer Git
+### Fichiers ###
+Le projet est divisé en plusieurs fichiers :
 
-        apt-get install git
+        main.py                 lancement du programme
+        population.py           algorithme génétique (évaluation, sélection, mutations/reproduction)
+        individuals.py          calcul du score de l'individu
+        mutations.py            fonctions de mutations
+        globals.py              paramètres et fonctions globales
+        progressbar.py          thread d'affichage barre d'avancement
 
-* Créer un compte GitHub
+### Dépendances ###
+* librairies de base de `Python v2.7`
+* numpy
+* networkx
+* graphviz (optionnelle mais conseillée)
+* matplotlib
 
-    * Dans `Acount settings -> SSH keys` coller sa clef RSA, obtenue avec : 
+### Lancement du programme ###
+Une aide est disponible, expliquant les différents paramètres optionels possibles et l'usage général du programme :
 
+        > python main.py -h
+        usage: main.py [options]
+        
+        Biological Graph Generator
+        
+        optional arguments:
+          -h, --help            show this help message and exit
+          -p, --param           Ask for every parameters of the simulation
+          -v, --verbose
+          -q, --quiet
+          --no-progress         Disable the progress bar
+          -f FREQ, --freq FREQ  Frequency of displaying informations
+          -s, --no-save         Do not save and plot individuals
+          -d, --delete          Delete all output (files, graphs and pictures) from previous run
 
-            ssh-keygen -t rsa -C <votremailidentifiant> 
-            cat ~/.ssh/id_rsa.pub
+L'option `-v` peut etre multipliée pour graduer son effet. Sont alors acceptés `-vv` ou `-vvv`. Ces options sont exclusives avec `-q`.
 
-        Si plusieurs ordis, plusieurs clefs à mettre ;)
+### Fichiers de Sortie ###
+Suivant les paramètres utilisés, le programme peut créer dans le dossier `out/` : les réseaux biologiques, la liste d'adjacence, l'évolution des différents types de scores, pour la totalité ou une proportion des meilleurs individus obtenus en sortie de simulation.
 
-    * Me donner votre identifiant pour que je vous ajoute au projet. 
+### Crédits ###
+Jonas Abernot, Arthur Bailly, Johan Chan & Maxime Sainlot
 
-
-
-* Pour récupérer le code pour la première fois :
-
-        git clone https://github.com/Fritzip/AGGP.git
-
-    Ca crée le dossier AGGP avec les fichiers, vous pouvez maintenant tout modifier normalement.
-
-* Une fois le dossier créer avant *chaque session de travail*, mettre à jour le dépot (pour prendre en compte les modifs des autres)
-
-        git pull
-
-    (il faut etre dans le dossier)
-
-
-* Après chaque changement IMPORTANT, faire un commit :
-
-        git commit -a -m 'un message explicite !'
-
-* A la fin de la session de travail (et si tout fonctionne bien !), envoyer sur le dépot:
-
-        git push -u origin master
-
-    Cela met à jour le code sur le serveur, avant ce n'est que sur votre pc donc on en profite pas !
-
-* Pour ajouter un fichier:
- 
-        git add <fichier>
-
-* Pour voir l'état de git (ce qui est modif ou pas, ce qui est inclu dans le dépot ou pas ) :
-
-        git status
-
-
-Un peu [plus d'aide là](http://doc.ubuntu-fr.org), si vous voulez :
-
-
-*Merci à Antoine pour ce README.*
+4BIM - INSA Lyon - AGGP

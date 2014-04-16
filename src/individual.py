@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 # Dependancies : networkx, numpy, graphviz, matplotlib
 
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rd
-import copy, math, sys, time
+import copy, math, sys, time, subprocess, os
 from scipy import stats as stats
 
 from globals import *
@@ -48,7 +50,15 @@ class Individual():
     
     def graphizer(self, label, i):
         update_progress("Plotting {}".format(label),i)
-        nx.draw(self.graph)
+        try:
+            nx.draw_graphviz(self.graph)
+        except:
+            nx.draw(self.graph)
+            '''
+            if not WARNVIZ:
+                print WARNING+"Would be best with graphviz"+ENDC
+                WARNVIZ = True
+        '''
         b=plt.savefig(IMG+label+"_"+self.id+".png") # save as png
         plt.clf()
 
@@ -62,9 +72,8 @@ class Individual():
         plt.plot(self.list_degrees_for_clustering_log,self.list_clustering_coeff_log)
         plt.savefig(IMG+"CG_gen"+str(generation)+"_id"+str(i)+"_graph"+str(self.id)+".png") # save as png
         plt.clf()
-              
 
-
+    
     def apply_mutations(self):
         m = self.graph_to_adj_mat()
         #Substitutions
@@ -100,26 +109,27 @@ class Individual():
     def power_degree_law(self):
         """ power degree law """
 
-        if len(self.list_degrees_log) <= 0.05*(NB_NODES) :
-            self.penalite+=200
-        else :
+        #if len(self.list_degrees_log) <= 0.05*(NB_NODES) :
+        #    self.penalite+=200
+        #else :
             #if len(self.list_degrees_log) < 0.15*(NB_NODES) :
             #    self.penalite+=50
             #    print len(self.list_degrees_log)
-             """  
-            slope=stats.linregress(self.list_degrees_log[:int(0.8*len(self.list_degrees_log))],self.list_count_log[:int(0.8*len(self.list_degrees_log))])
-"""
-             slope=stats.linregress(self.list_degrees_log,self.list_count_log)
-        
-        
-             SCE=(slope[4]**2)*NB_NODES
 
+        nb_diff_deg = int(0.8*len(self.list_degrees_log))
+        if nb_diff_deg < 4:
+            nb_diff_deg = len(self.list_degrees_log)
+            self.penalite += 10
+            
+        slope=stats.linregress(self.list_degrees_log[:nb_diff_deg],self.list_count_log[:nb_diff_deg])
+
+        SCE=(slope[4]**2)*NB_NODES
+        
             #print "SCE = " + str(SCE*5) +" pente = " + str(slope[0]) + "   erreur de pente : " + str(abs(-1-slope[0])*15) +"\n"
             
-
-             if slope[0] > 0 : self.penalite += 100
-            
-             self.score_pdl = abs(-2-slope[0])+SCE*10
+        if slope[0] > 0 : self.penalite += 100
+        
+        self.score_pdl = abs(-2-slope[0])+SCE*10
 
         
         
@@ -137,21 +147,23 @@ class Individual():
         if lin_regress_clique[0] > 0 : self.penalite += 20 
         self.score_cf = abs(-0.5-lin_regress_clique[0])+SCE_clique
         """
-        
-        self.score_cf=abs((self.list_degrees[-1::])[0]-25)*5
-        #print self.score_cf
 
-        
-        
+        tri = np.mean(nx.triangles(self.graph).values())
+        self.score_cf=1/(tri+EPS)
+        #self.score_cf=abs((self.list_degrees[-1::])[0]-25)*5
+
+                
     def small_world(self):
         """ Compute small world score of graph """
         L = nx.average_shortest_path_length(self.graph)
-        C = nx.average_clustering(self.graph)
-        if C-C_RAND<0 :
+        self.C = nx.average_clustering(self.graph)
+        if self.C-C_RAND<0 :
             self.score_sw=10
         else :
-            self.score_sw=abs(C_RAND+0.1-C)*10
-        self.score_sw+=abs(L-L_RAND)
+            self.score_sw=abs(C_RAND+0.1-self.C)*10
+        self.score_sw+=abs(L-L_RAND)*5
+
+        
         #if (self.score_sw >2) :
          #   self.penalite+=50
         #print "\n" + str(L) + "    " +str(L_RAND) + "\n"
@@ -160,6 +172,7 @@ class Individual():
         #print abs(C_RAND+0.3-C)*10
         #print abs(L-L_RAND)
         #print "\n"
+
         
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
@@ -202,8 +215,8 @@ class Individual():
             
         # Score functions
         self.power_degree_law()
-        #self.small_world()
-        #self.clique_formation()
+        self.small_world()
+        self.clique_formation()
 
         self.score = PDL*self.score_pdl + SW*self.score_sw + CF*self.score_cf + self.penalite
 

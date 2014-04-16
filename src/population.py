@@ -18,6 +18,10 @@ class Population():
         self.score_pdl = []
         self.score_sw = []
         self.score_cf = []
+
+        self.best_pdl = []
+        self.best_sw = []
+        self.best_cf = []
         
         self.selected_indiv = []
         self.selected_score = []
@@ -47,7 +51,7 @@ class Population():
             self.score_pdl.append(0)
             self.score_sw.append(0)
             self.score_cf.append(0)
-            (self.indiv[i]).score_toolbox()
+            self.indiv[i].score_toolbox()
 
     
     def genetic_algo(self):
@@ -71,9 +75,9 @@ class Population():
                     update_gen(self.generation)
                 start = time.time()
                 self.evaluation()
-                self.save() # in files
                 self.selection()
                 self.crossormut()
+                self.save() # in files
                 time_laps = time.time()-start
 
                 if PROGRESS_GEN and self.generation != 0:
@@ -114,7 +118,7 @@ class Population():
         if self.generation > 1 and SAVE:
             while True:
                 try:
-                    n = input("Sauvegarde des n meilleurs individus (defaut n=1).\nn [0:{}] = ".format(self.nb_best))
+                    n = input("Sauvegarde des n [0:{}] meilleurs individus : n = ".format(self.nb_best))
                     if n == "":
                         n = 1
                     elif n > self.nb_best:
@@ -128,14 +132,14 @@ class Population():
                 self.print_info_indiv(self.best_ever_indiv[i])
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
-                print self.best_ever_indiv[i].list_degrees_log
-                print self.best_ever_indiv[i].list_count_log
                 self.save2sif(self.best_ever_indiv[i])
-                self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
-                self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
-
-        # en sortie de l'algorithme : lancer des plots, des stats, des summary, des feux d'artifices de pop-up…
+            self.fitness3D(self.best_pdl,self.best_sw,self.best_cf)
+            os.system('gnuplot ../out/scores.gp')
+   
+                #self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
+                #self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
         
+        print ""
             
     def evaluation(self):
         """ Compute the score using fitness function """
@@ -162,9 +166,7 @@ class Population():
             
     def elitist_selec(self):
         """ Elitist (20%) and tournament selection (80%) """
-        #self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.score,self.indiv)))))
-        #self.best_ever_score, self.best_ever_indiv = copy.deepcopy(map(lambda x : list(x[0:self.nb_best]),zip(*(sorted(zip(self.best_last_gen_score+self.best_ever_score,self.best_last_gen_indiv+self.best_ever_indiv))))))
-
+        
         self.best_last_gen_score, self.best_last_gen_indiv = map(lambda x : list(x),zip(*(sorted(zip(self.score,self.indiv)))))
         self.best_temp_score, self.best_temp_indiv = copy.deepcopy(map(lambda x : list(x),zip(*(sorted(zip(self.best_ever_score+self.best_last_gen_score,self.best_ever_indiv+self.best_last_gen_indiv))))))
 
@@ -176,7 +178,7 @@ class Population():
                     self.indices_best.append(indice)
                 indice += 1
             else :
-                ERROR = True # pour le moment. À éventuellement modifier (petite population !)
+                ERROR = True
                 print FAIL+"Pas d'individus suffisamment différents"+ENDC
                 break
 
@@ -205,7 +207,7 @@ class Population():
             prob = 0.5+((self.score[higher]-self.score[lower])/self.score[higher])*0.5
         except:
             prob = 0.5
-        #print "prob = %.2f, rand  = %.2f"%(prob,rand)
+        
         if rand > prob: return higher
         else: return lower
         
@@ -276,11 +278,14 @@ class Population():
         self.next_gen.append(Individual(mat = ind.apply_mutations(), id=ind.id))#rd.choice(NAMES)))
 
     def save(self):
-        self.fscore.write(str(self.generation)+'\t'+str(max(self.score))+'\t'+str(sum(self.score)/len(self.score))+'\t'+str(min(self.score))+'\n')
-        self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\n')
-        self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\n')
-        self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\n')
-        
+        best = self.best_ever_indiv[0]
+        self.fscore.write(str(self.generation)+'\t'+str(max(self.score))+'\t'+str(sum(self.score)/len(self.score))+'\t'+str(min(self.score))+'\t'+str(best.score)+'\n')
+        self.fpdl.write(str(self.generation)+'\t'+str(max(self.score_pdl))+'\t'+str(sum(self.score_pdl)/len(self.score_pdl))+'\t'+str(min(self.score_pdl))+'\t'+str(best.score_pdl)+'\n')
+        self.fsw.write(str(self.generation)+'\t'+str(max(self.score_sw))+'\t'+str(sum(self.score_sw)/len(self.score_sw))+'\t'+str(min(self.score_sw))+'\t'+str(best.score_sw)+'\n')
+        self.fcf.write(str(self.generation)+'\t'+str(max(self.score_cf))+'\t'+str(sum(self.score_cf)/len(self.score_cf))+'\t'+str(min(self.score_cf))+'\t'+str(best.score_cf)+'\n')
+        self.best_pdl.append(min(self.score_pdl))
+        self.best_sw.append(min(self.score_sw))
+        self.best_cf.append(min(self.score_cf))
 
 
     def save2sif(self,indiv):
@@ -289,7 +294,7 @@ class Population():
         for j in range(NB_NODES):
             for i in range(j,NB_NODES):
                 if m[i][j]==1:
-                    sif.write(str(i)+'\tpp\t'+str(j)+'\n')
+                    sif.write(str(i)+'\t'+str(j)+'\n')
         sif.close()
 
     def convert_xgmml(self):            # conversion de la matrice 3D d'adjacence en format XGMML
@@ -338,7 +343,19 @@ class Population():
                         start = k+2						
         f.write('</graph>\n')
         f.close()
-                            
+
+    def fitness3D(self,x,y,z):
+        mpl.rcParams['legend.fontsize'] = 10
+
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.invert_yaxis()
+
+        ax.plot(x, y, z, '-o', label='fitness3D')
+        ax.legend()
+    
+        plt.show()
+        
     def prints(self):
         """ Print, just print """
         # INFO BEST INDIV
@@ -352,7 +369,7 @@ class Population():
             print "╟{0}╫{0}╢".format('─'*((LONG-3)/2))
             
             for i in range(len(self.best_ever_score)):
-                print "║{0:7.2f} ┆ {1:<13}║{2:7.2f} ┆ {3:<13}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
+                print "║{0:8.2f} ┆ {1:<12}║{2:8.2f} ┆ {3:<12}║".format(self.best_ever_score[i],ever[i],self.best_last_gen_score[i],last[i])
 
             print "╚{0}╩{0}╝".format('═'*((LONG-3)/2))
         
@@ -367,35 +384,35 @@ class Population():
             print "║{0}║".format("SELECTED".center(LONG-4))
             print "╟{0}┬{0}┬{0}╢".format('─'*((LONG-4)/3))
             for i in range(FAC):
-                print "║{0:7.2f} ┆ {1:<13}│{2:7.2f} ┆ {3:<13}│{4:7.2f} ┆ {5:<13}║".format(self.selected_score[i],select[i],self.selected_score[i+FAC],select[i+FAC],self.selected_score[i+FAC*2],select[i+FAC*2])
+                print "║{0:8.2f} ┆ {1:<12}│{2:8.2f} ┆ {3:<12}│{4:8.2f} ┆ {5:<12}║".format(self.selected_score[i],select[i],self.selected_score[i+FAC],select[i+FAC],self.selected_score[i+FAC*2],select[i+FAC*2])
             if NB_INDIV%3==1:
-                print "║{0:7.2f} ┆ {1:<13}│{2:<7} ┆ {3:<13}│{4:<7} ┆ {5:<13}║".format(self.selected_score[-1],select[-1],'','','','')
+                print "║{0:8.2f} ┆ {1:<12}│{2:<8} ┆ {3:<12}│{4:<8} ┆ {5:<12}║".format(self.selected_score[-1],select[-1],'','','','')
             elif NB_INDIV%3==2:
-                print "║{0:7.2f} ┆ {1:<13}│{2:7.2f} ┆ {3:<13}│{4:<7} ┆ {5:<13}║".format(self.selected_score[-1],select[-1],self.selected_score[-2],select[-2],'','')
+                print "║{0:8.2f} ┆ {1:<12}│{2:8.2f} ┆ {3:<12}│{4:<8} ┆ {5:<12}║".format(self.selected_score[-1],select[-1],self.selected_score[-2],select[-2],'','')
             print "╚{0}╧{0}╧{0}╝".format('═'*((LONG-4)/3))
 
         # INFO GENERATION BOX
         if INFO_GEN and self.generation%INFO_FREQ==0:
             indi = self.best_ever_indiv[0]
             print "\n╔{0}╗\n║ {2}{1}{3} ║".format('═'*39,"GENERATION {0}".format(self.generation).center(37),HEADER,ENDC)
-            print "║ {2}{0:7.2f} ┆ {1:<10} : {4:<14}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC,self.best_ever_indiv[0].id)
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_pdl*PDL,"Power Degree Law")
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_sw*SW,"Small World")
-            print "║ {0:7.2f} ┆ {1:<27} ║".format(indi.score_cf*CF,"Clique Formation")
-            print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
-            print "║ {2}{0:7.2f} ┆ {1:<27}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
+            print "║ {2}{0:8.2f} ┆ {1:<9} : {4:<13}{3} ║".format(min(self.selected_score),"Best Score",OKGREEN,ENDC,self.best_ever_indiv[0].id)
+            print "║ {0:8.2f} ┆ {1:<26} ║".format(indi.score_pdl*PDL,"Power Degree Law")
+            print "║ {0:8.2f} ┆ {1:<26} ║".format(indi.score_sw*SW,"Small World")
+            print "║ {0:8.2f} ┆ {1:<26} ║".format(indi.score_cf*CF,"Clique Formation")
+            print "║ {2}{0:8.2f} ┆ {1:<26}{3} ║".format(float(sum(self.selected_score))/len(self.selected_score), "Mean Score",OKBLUE,ENDC)
+            print "║ {2}{0:8.2f} ┆ {1:<26}{3} ║".format(max(self.selected_score), "Worst Score",FAIL,ENDC)
             print "╚{0}╝".format('═'*39)
             
     def print_info_indiv(self,indi):
         #indi = self.indiv[i]
         print "\n+{}+".format('-'*30)
         print "|{}|".format(indi.id.center(30))
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_pdl*PDL,"Power Degree Law")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_sw*SW,"Small World")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score_cf*CF,"Clique Formation")
-        print "| {0:7.2f} | {1:<18} |".format(indi.score,"Global")
+        print "| {0:8.2f} | {1:<17} |".format(indi.score_pdl*PDL,"Power Degree Law")
+        print "| {0:8.2f} | {1:<17} |".format(indi.score_sw*SW,"Small World")
+        print "| {0:8.2f} | {1:<17} |".format(indi.score_cf*CF,"Clique Formation")
+        print "| {0:8.2f} | {1:<17} |".format(indi.score,"Global")
         print "+{}+".format('-'*30)
-
+ 
     def plots(self):
         if self.generation%PLOT_GR==0 or (self.generation==1 and PLOT_GEN_ZERO):
             i=1
