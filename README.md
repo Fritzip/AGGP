@@ -5,12 +5,12 @@
 ### Fichiers ###
 Le projet est divisé en plusieurs fichiers :
 
-         main.py                 lancement du programme
-         population.py           algorithme génétique (évaluation, sélection, mutations/reproduction)
-         individuals.py          calcul du score de l'individu
-         mutations.py            fonctions de mutations
-         globals.py              paramètres et fonctions globales
-         progressbar.py          thread d'affichage barre d'avancement
+        main.py                 *lancement du programme*
+        population.py           *algorithme génétique (évaluation, sélection, mutations/reproduction)*
+        individuals.py          *calcul du score de l'individu*
+        mutations.py            *fonctions de mutations*
+        globals.py              *paramètres et fonctions globales*
+        progressbar.py          *thread d'affichage barre d'avancement*
 
 ### Dépendances ###
 * librairies de base de `Python v2.7`
@@ -20,6 +20,8 @@ Le projet est divisé en plusieurs fichiers :
 * matplotlib
 
 ### Lancement du programme ###
+Une aide est disponible, expliquant les différents paramètres optionels possibles et l'usage général du du programme :
+
         > python main.py -h
         usage: main.py [options]
         
@@ -35,10 +37,10 @@ Le projet est divisé en plusieurs fichiers :
           -s, --no-save         Do not save and plot individuals
           -d, --delete          Delete all output (files, graphs and pictures) from previous run
 
-L'option `-v` peut etre multipliée pour graduer son effet. Sont alors accepté `-vv` ou `-vvv`. Cette option est exclusive avec `-q`.
+L'option `-v` peut etre multipliée pour graduer son effet. Sont alors acceptés `-vv` ou `-vvv`. Ces options sont exclusives avec `-q`.
 
 ### Fichiers de Sortie ###
-Suivant les paramètres utilisés, le programme peut créer dans le dossier `out/` : les réseaux biologiques, la liste d'adjacence, l'évolution des scores, pour la totalité ou une proportion des meilleurs individus obtenus en sortie de simulation.
+Suivant les paramètres utilisés, le programme peut créer dans le dossier `out/` : les réseaux biologiques, la liste d'adjacence, l'évolution des différents types de scores, pour la totalité ou une proportion des meilleurs individus obtenus en sortie de simulation.
 
 ### Crédits ###
 Jonas Abernot, Arthur Bailly, Johan Chan & Maxime Sainlot
