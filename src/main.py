@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Dependancies : networkx, numpy, graphviz, matplotlib
 
-## > python main.py -h
+## python main.py -h
 ## usage: main.py [options]
 
 ## Biological Graph Generator
@@ -15,9 +15,11 @@
 ##   --no-progress         Disable the progress bar
 ##   -f FREQ, --freq FREQ  Frequency of displaying informations
 ##   -s, --no-save         Do not save and plot individuals
+##   -t, --stat            Plot final stats graphs
 ##   -d, --delete          Delete all output (files, graphs and pictures) from
 ##                         previous run
-                        
+
+                                       
 from population import *
 
 ####################################################################

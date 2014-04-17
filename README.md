@@ -56,7 +56,10 @@ Une aide est disponible, expliquant les différents paramètres optionels possib
           --no-progress         Disable the progress bar
           -f FREQ, --freq FREQ  Frequency of displaying informations
           -s, --no-save         Do not save and plot individuals
-          -d, --delete          Delete all output (files, graphs and pictures) from previous run
+          -t, --stat            Plot final stats graphs
+          -d, --delete          Delete all output (files, graphs and pictures) from
+                                previous run
+
 
 L'option `-v` peut etre multipliée pour graduer son effet. Sont alors acceptés `-vv` ou `-vvv`. Ces options sont exclusives avec `-q`.
 
