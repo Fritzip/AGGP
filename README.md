@@ -38,6 +38,7 @@ Le projet est divisé en plusieurs dossiers :
 * networkx
 * graphviz (optionnelle mais conseillée)
 * matplotlib
+* gnuplot
 
 ### Lancement du programme ###
 Une aide est disponible, expliquant les différents paramètres optionels possibles et l'usage général du programme :
