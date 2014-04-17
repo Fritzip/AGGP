@@ -18,19 +18,19 @@ Le projet est divisé en plusieurs dossiers :
         progressbar.py          thread d'affichage barre d'avancement
 * in
 
-	Contient les fichiers d'entrée nécessaire au programme 
+	Fichiers d'entrée nécessaires au programme 
 
         names			Liste de prénoms pour identifier les individus
         scores.gp		Fichier gnuplot (-t ou --no-stat pour ne pas lancer gnuplot)
 * ref_network
 
-	Contient les réseaux de références (non nécessaire au programme)
+	Réseaux de références (non nécessaires au programme)
 * img
 
 	Dossier créé si inexistant au lancement, contiendra les visualisations des individus 
 * out
 
-	Dossier créé si inexistant au lancement, contiendra des fichier .sif pour une visualisation Cytoscape et des fichier evo_* pour une visualisation par type de scores au cours des génerations.
+	Dossier créé si inexistant au lancement, contiendra des fichiers .sif pour une visualisation Cytoscape et des fichiers evo_* pour une visualisation par type de scores au cours des génerations (gnuplot).
 
 ### Dépendances ###
 * librairies de base de `Python v2.7`
@@ -62,9 +62,6 @@ Une aide est disponible, expliquant les différents paramètres optionels possib
 
 
 L'option `-v` peut etre multipliée pour graduer son effet. Sont alors acceptés `-vv` ou `-vvv`. Ces options sont exclusives avec `-q`.
-
-### Fichiers de Sortie ###
-Suivant les paramètres utilisés, le programme peut créer dans le dossier `out/` : les réseaux biologiques, la liste d'adjacence, l'évolution des différents types de scores, pour la totalité ou une proportion des meilleurs individus obtenus en sortie de simulation.
 
 ### Crédits ###
 Jonas Abernot, Arthur Bailly, Johan Chan & Maxime Sainlot
