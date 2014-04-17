@@ -6,7 +6,6 @@ import networkx as nx
 import sys, os, shutil
 import argparse
 
-
 # Colors
 HEADER = '\033[1m' # bold
 OKBLUE = '\033[94m' # blue
@@ -75,7 +74,6 @@ def askf(question, default):
 #			Global Parameters (default)
 ####################################################################
 # Parameters of algogen
-
 NB_GEN = 200 # genetic algo's iteration number
 NB_NODES = 50
 NB_INDIV = 30
@@ -109,9 +107,9 @@ RATE_GLOBAL_DEL = 0.1
 
 # Scores Rates
 
-PDL = 2 #30
+PDL = 30
 SW = 3
-CF = 10
+CF = 3
 
 ####################################################################
 #			Arguments parser

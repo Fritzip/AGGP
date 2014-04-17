@@ -108,14 +108,6 @@ class Individual():
 
     def power_degree_law(self):
         """ power degree law """
-
-        #if len(self.list_degrees_log) <= 0.05*(NB_NODES) :
-        #    self.penalite+=200
-        #else :
-            #if len(self.list_degrees_log) < 0.15*(NB_NODES) :
-            #    self.penalite+=50
-            #    print len(self.list_degrees_log)
-
         nb_diff_deg = int(0.8*len(self.list_degrees_log))
         if nb_diff_deg < 4:
             nb_diff_deg = len(self.list_degrees_log)
@@ -125,8 +117,6 @@ class Individual():
 
         SCE=(slope[4]**2)*NB_NODES
         
-            #print "SCE = " + str(SCE*5) +" pente = " + str(slope[0]) + "   erreur de pente : " + str(abs(-1-slope[0])*15) +"\n"
-            
         if slope[0] > 0 : self.penalite += 100
         
         self.score_pdl = abs(-2-slope[0])+SCE*10
@@ -134,23 +124,10 @@ class Individual():
         
         
     def clique_formation(self):
-        """ Compute clique formation score through log(linear) regression 
-
-        lin_regress_clique=stats.linregress(self.list_degrees_for_clustering_log,self.list_clustering_coeff_log)
-        #print "\n liste des degrés en log : " +str(self.list_degrees_for_clustering_log)
-        #print "liste des degrés : " + str(self.deg_dict.values())
-        #print "\n liste des coeff de clustering : " +str(self.clustl_dict.values()) + "\n"
-
-
-        SCE_clique=(lin_regress_clique[4]**2)*NB_NODES
-
-        if lin_regress_clique[0] > 0 : self.penalite += 20 
-        self.score_cf = abs(-0.5-lin_regress_clique[0])+SCE_clique
-        """
+        """ Compute clique formation score """
 
         tri = np.mean(nx.triangles(self.graph).values())
         self.score_cf=1/(tri+EPS)
-        #self.score_cf=abs((self.list_degrees[-1::])[0]-25)*5
 
                 
     def small_world(self):
@@ -163,17 +140,6 @@ class Individual():
             self.score_sw=abs(C_RAND+0.1-self.C)*10
         self.score_sw+=abs(L-L_RAND)*5
 
-        
-        #if (self.score_sw >2) :
-         #   self.penalite+=50
-        #print "\n" + str(L) + "    " +str(L_RAND) + "\n"
-        #self.score_sw = (1-C)*L # A préciser !
-#        self.score_sw=abs(1-S)*50
-        #print abs(C_RAND+0.3-C)*10
-        #print abs(L-L_RAND)
-        #print "\n"
-
-        
     def reconnect(self,main,sub):
         recon = range(int(round(0.4*len(sub),0))) if len(sub) != 1 else range(1)
         new_edge = []
@@ -191,12 +157,12 @@ class Individual():
         # Usefull dict
         self.deg_dict=self.graph.degree() #dictionnaire des degrés : clé = id noeuds ; valeur = degré
         self.clustl_dict = nx.clustering(self.graph) # key = id nodes, values = local clustering 
-
         self.list_degrees = list(set(self.deg_dict.values())) # [unique dict values]
 
         # Lists
         values = sorted((self.deg_dict.values()))
         self.list_count = [values.count(x) for x in self.list_degrees]
+
         # Log
         self.list_degrees_log = [math.log10(x+EPS) for x in self.list_degrees]
         self.list_count_log = [math.log10(x+EPS) for x in self.list_count]

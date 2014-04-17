@@ -134,11 +134,8 @@ class Population():
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
             self.fitness3D(self.best_pdl,self.best_sw,self.best_cf)
-            os.system('gnuplot ../out/scores.gp')
-   
-                #self.selected_indiv[i].degree_graph("PDL Graphs Generation {}".format(self.generation),i)
-                #self.selected_indiv[i].clique_graph("Clique Graphs Generation {}".format(self.generation),i)
-        
+            os.system('gnuplot ../in/scores.gp')
+
         print ""
             
     def evaluation(self):
@@ -404,7 +401,6 @@ class Population():
             print "╚{0}╝".format('═'*39)
             
     def print_info_indiv(self,indi):
-        #indi = self.indiv[i]
         print "\n+{}+".format('-'*30)
         print "|{}|".format(indi.id.center(30))
         print "| {0:8.2f} | {1:<17} |".format(indi.score_pdl*PDL,"Power Degree Law")
