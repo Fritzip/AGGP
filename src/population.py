@@ -346,8 +346,7 @@ class Population():
     def fitness3D(self,x,y,z):
         mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
+        ax = plt.gca(projection='3d')
         ax.invert_yaxis()
 
         ax.plot(x, y, z, '-o', label='fitness3D')
