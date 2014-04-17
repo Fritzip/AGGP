@@ -11,7 +11,7 @@ from globals import *
 ####################################################################
 
 class Progressbar(threading.Thread):
-""" Thread for displaying progress bar"""
+    """ Thread for displaying progress bar"""
     def __init__(self,gen,time_last):
         threading.Thread.__init__(self)
         self.gen = gen

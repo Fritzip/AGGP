@@ -133,6 +133,8 @@ class Population():
             for i in range(n):
                 self.best_ever_indiv[i].graphizer("Best"+str(i),(i+1)*100./n)
                 self.save2sif(self.best_ever_indiv[i])
+                
+        if self.generation > 1 and STAT:
             self.fitness3D(self.best_pdl,self.best_sw,self.best_cf)
             os.system('gnuplot ../in/scores.gp')
 

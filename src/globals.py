@@ -84,6 +84,7 @@ PLOT_GR = NB_GEN+1 # plot graph every X generation
 PLOT_CF = NB_GEN+1
 CYTO3D = False
 SAVE = True
+STAT = True
 PLOT_GEN_ZERO = False # plot initials individuals ?
 
 # Plot information box
@@ -132,6 +133,9 @@ parser.add_argument("-f","--freq", default=INFO_FREQ, type=int,
 
 parser.add_argument("-s","--no-save", action="store_true", default=0,
                     help="Do not save and plot individuals")
+
+parser.add_argument("-t","--no-stat", action="store_true", default=0,
+                    help="Do not plot final stats graphs")
 
 parser.add_argument("-d","--delete",action="store_true",
                     help="Delete all output (files, graphs and pictures) from previous run")
@@ -188,6 +192,9 @@ if args.no_progress:
 if args.no_save:
     SAVE = False
 
+if args.no_stat:
+    STAT = False
+    
 if args.param:
     choice = raw_input("""{0}What type of parameters would you like to change ?{1}
 (multiples choices allowed)
