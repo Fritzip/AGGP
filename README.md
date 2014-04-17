@@ -7,7 +7,9 @@
 
 Le projet est divisé en plusieurs dossiers :
 * src
+
 	Sources du programme
+
         main.py                 lancement du programme
         population.py           algorithme génétique (évaluation, sélection, mutations/reproduction)
         individuals.py          calcul du score de l'individu
@@ -15,14 +17,19 @@ Le projet est divisé en plusieurs dossiers :
         globals.py              paramètres et fonctions globales
         progressbar.py          thread d'affichage barre d'avancement
 * in
+
 	Contient les fichiers d'entrée nécessaire au programme 
+
         names			Liste de prénoms pour identifier les individus
         scores.gp		Fichier gnuplot (-t ou --no-stat pour ne pas lancer gnuplot)
 * ref_network
+
 	Contient les réseaux de références (non nécessaire au programme)
 * img
+
 	Dossier créé si inexistant au lancement, contiendra les visualisations des individus 
 * out
+
 	Dossier créé si inexistant au lancement, contiendra des fichier .sif pour une visualisation Cytoscape et des fichier evo_* pour une visualisation par type de scores au cours des génerations.
 
 ### Dépendances ###
